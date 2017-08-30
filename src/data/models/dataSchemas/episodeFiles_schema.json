@@ -1,0 +1,10 @@
+{
+    "type": "object",
+    "description": "A release file associated to an episode of a project",
+    "properties": {
+        "fileName": {"type":"string", "description": "name of the file"},
+        "ftpFilePath": {"type": "string", "description": "location of file on ftp"},
+        "version": {"type": "number", "description": "the version number of this file"},
+        "quality": {"type":"string", "enum":["720p", "1080p"]}
+    }
+}

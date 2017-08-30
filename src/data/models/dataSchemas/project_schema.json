@@ -1,0 +1,40 @@
+{
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "the project id"
+        },
+        "name": {
+            "type": "string",
+            "description": "The name of the project"
+        },
+        "aliases": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+        },
+        "episodes": {
+            "type": "array",
+            "items": {
+                "$ref": "episode_schema.json"
+            }
+        },
+        "completed": {
+            "type": "date",
+            "description": "Date the project was completed (null if incomplete)"
+        },
+
+        "projectType": {
+            "type": "string",
+            "enum": [
+                "TV",
+                "BD",
+                "OVA",
+                "FILM",
+                "MISC"
+            ]
+        }
+    }
+}

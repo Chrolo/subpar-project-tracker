@@ -1,0 +1,27 @@
+{
+    "id": "projectTemplate_schema.json",
+    "type": "object",
+    "properties":{
+        "name": {"type": "string","description": "The name of the project"},
+        "aliases": {"type": "array","items": {"type": "string"},"description":"other names for the show"},
+        "episodeCount": { "type": "integer", "description": "The number of episodes in the project. (Initially)"},
+
+        "projectType": {
+            "type": "string",
+            "enum": [
+                "TV",
+                "BD",
+                "OVA",
+                "FILM",
+                "MISC"
+            ]
+        },
+        "defaultTasks":{
+            "type":"array",
+            "items":{
+                "$ref": "task_schema.json"
+            },
+            "description": "The standard set of tasks to be applied to each episode."
+        }
+    }
+}

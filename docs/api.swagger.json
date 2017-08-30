@@ -1,0 +1,285 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "The API for viewing or editting projects managed by the SubPar-project tracker",
+        "version": "0.0.1",
+        "title": "SubPar-project tracker",
+        "contact": {
+            "name": "Chrolo @ DameDesuYo",
+            "url": "<the Github url of the repo>",
+        }
+    },
+    "host": "where ever you've set up your service",
+    "security": {
+        "api-key": []
+    },
+    "paths": {
+        "/projects": {
+            "get": {
+                "summary": "get a list of project names",
+                "description": "get an array of project names currently on the system. Can (will later) include url parameters search to filter results",
+                "produces": ["application/json"],
+                "parameters": [{
+                    "name": "name",
+                    "in": "query",
+                    "description": "The name to search by. Can be shorthand",
+                    "schema": {
+                        "type": "string"
+                    },
+                }, {
+                    "name": "projectType",
+                    "in": "query",
+                    "description": "The type of project to filter by",
+                    "schema": {
+                        "type": "string",
+                        "enum": ["TV", "BD"]
+                    },
+                }, {
+                    "name": "year",
+                    "in": "query",
+                    "description": "The year it was released (based on season it began airing / was release on sale)",
+                    "schema": {
+                        "type": "integer"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "List of project names, filtered by any applied queries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "[DRAFT] Add a new project",
+                "description": "[DRAFT] Add a new project to the database.",
+                "produces": ["application/json"],
+                "parameters": {
+                    "name": "project",
+                    "in": "body",
+                    "description": "The details of the project to be added",
+                    "schema": {
+                        "$ref": "#definitions/projectTemplate"
+                    },
+                },
+                "responses": {
+                    "200": {
+                        "description": "Project was added to database"
+                    },
+                    "403": {
+                        "description": "You don't have permission to add new projects to the database"
+                    }
+                }
+            }
+        },
+        "/projects/:projectName": {
+            "get": {
+                "summary": "get project details",
+                "description": "get project details.",
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "project details",
+                        "schema": {
+                            "$ref": "#/definitions/project"
+                        }
+                    }
+                }
+            }
+        },
+        "/projects/:projectName/episodes/:episode": {
+            "get": {
+                "summary": "Get information about an episode of a project",
+                "description": "Get a JSON object representing information about that project.",
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "episode information",
+                        "schema": {
+                            "$ref": "#defintions/episode"
+                        }
+                    },
+                    "404": {
+                        "description": "Project not found"
+                    }
+                }
+            }
+        },
+        "/projects/:projectName/:episodeNumber/:taskId"
+            "patch": {
+                "summary": "update the status of a task",
+                "description": "edit the status of a task",
+                "parameters": [
+                    {
+                        "name": "complete",
+                        "in": "body",
+                        "description": "changes completion status of task",
+                        "schema": {
+                             "type": "boolean",
+                             "description": "is the task complete? (the server will determine timestamp for completion)"
+                        }
+                    },
+                    {
+                        "name": "newStaff",
+                        "in": "body",
+                        "description": "updates to the staff member assigned to the task",
+                        "schema": {
+                             "type": "string",
+                             "description": "The name of the new staff member to assign this task to"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "task status updated successfully",
+                    "403": {
+                        "description": "You are not authorised to adjust that task"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "task": {
+            "type": "object",
+            "description": "A task that needs to be completed",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "The id of the task"
+                },
+                "taskName": {
+                    "type": "string",
+                    "description": "The name of the task"
+                },
+                "completed": {
+                    "type": "date",
+                    "description": "The date the task was completed."
+                },
+                "staffName": {
+                    "type": "string",
+                    "description": "name of the staff member responsible for this task"
+                },
+                "dependsOn": {
+                    "type": "array",
+                    "items": {
+                        "type": "int",
+                        "description": "TaskId"
+                    },
+                    "description": "Tasks that must be completed before this task."
+                },
+                "lastUpdated": {
+                    "type": "date",
+                    "description": "When the task was last updated"
+                }
+            },
+            "required": [
+                "staffName",
+                "taskName"
+            ]
+        },
+        "project":{
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer","description": "the project id"},
+                "name": {"type": "string","description": "The name of the project"},
+                "aliases": {"type": "array", "items": {"type": "string"},
+                },
+                "episodes": {
+                    "type": "array",
+                    "items": {"$ref": "#definitions/episode"}
+                },
+                "completed": {
+                    "type": "date",
+                    "description": "Date the project was completed (null if incomplete)"
+                },
+                "projectType": {
+                    "type": "string",
+                    "enum": ["TV","BD","OVA","FILM","MISC"]
+                },
+
+                "ircChannel": {
+                    "type": "string",
+                    "description": "the IRC channel for the project"
+                }
+            }
+        },
+        "projectTemplate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "the project id"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "The name of the project"
+                },
+                "aliases": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                },
+                "episodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "episode_schema.json"
+                    }
+                },
+                "completed": {
+                    "type": "date",
+                    "description": "Date the project was completed (null if incomplete)"
+                },
+
+                "projectType": {
+                    "type": "string",
+                    "enum": [
+                        "TV",
+                        "BD",
+                        "OVA",
+                        "FILM",
+                        "MISC"
+                    ]
+                }
+            }
+        },
+        "episode": {
+            "type": "object",
+            "properties": {
+                "id":{"type": "integer"},
+                "episodeNumber":{
+                    "type": "string",
+                    "description": "The episode number. String to allow for 'OVA1', etc"
+                },
+                "tasks": {
+                    "type": "array",
+                    "items": {"$ref": "#definitions/tasks"},
+                },
+                "completed": {
+                    "type": "date",
+                    "description": "Date the episode was completed (null if incomplete)"
+                },
+                "files":{
+                    "type": "array",
+                    "description": "array of release files for this episode (can be varying quality and versions)",
+                    "items": {"$ref": "#definitions/episodeFile"}
+                }
+            }
+        },
+        "episodeFile": {
+            "type": "object",
+            "description": "A release file associated to an episode of a project",
+            "properties": {
+                "fileName": {"type":"string", "description": "name of the file"},
+                "ftpFilePath": {"type": "string", "description": "location of file on ftp"},
+                "version": {"type": "number", "description": "the version number of this file"},
+                "quality": {"type":"string", "enum":["720p", "1080p"]}
+            }
+        }
+    }
+}

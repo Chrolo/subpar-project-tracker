@@ -1,0 +1,36 @@
+{
+    "name": "episode_files",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name":"id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "episodeId",
+            "type": "INT",
+            "foreignKey": {
+                "table": "episodes",
+                "column": "id"
+            }
+        },
+        {
+            "name": "fileName",
+            "type": "TEXT"
+        },
+        {
+            "name": "ftpFilePath",
+            "type": "TEXT"
+        },
+        {
+            "name":"version",
+            "type": "FLOAT"
+        },
+        {
+            "name": "quality",
+            "type": "TEXT"
+        }
+    ]
+}

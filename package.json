@@ -1,0 +1,24 @@
+{
+  "name": "subpar-project-tracker",
+  "version": "0.0.1",
+  "description": "A project tracking system for fansub groups. It has a simple API that can be used by a website or chatbot to enable people to see progress on the groups projects and for designated staff to add new projects and update them.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "mocha -c src/**/*.spec.js",
+    "build:databaseDef": "node src/data/models/dbDefCompiler.js"
+  },
+  "author": "Chrolo",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "ajv": "^5.2.2",
+    "express": "^4.15.3",
+    "mysql": "^2.14.1",
+    "uuid": "^3.1.0",
+    "yargs": "^8.0.2"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "mocha": "^3.4.2"
+  }
+}

@@ -1,0 +1,9 @@
+# Project ignores
+tmp/
+dist/
+config.json
+
+#npm ignores
+node_modules/
+npm-debug*.log
+package-lock.json

@@ -1,0 +1,32 @@
+{
+    "name": "episodes",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name":"id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "projectId",
+            "type": "INT",
+            "foreignKey": {
+                "table": "projects",
+                "column": "id"
+            }
+        },
+        {
+            "name": "episodeName",
+            "type": "TEXT"
+        },
+        {
+            "name": "episodeNumber",
+            "type": "INT"
+        },
+        {
+            "name": "completed",
+            "type": "DATE"
+        }
+    ]
+}

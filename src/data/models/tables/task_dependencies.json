@@ -1,0 +1,25 @@
+{
+    "name": "task_dependencies",
+    "description":"Each row respresents a constraint that the 'preTask' is completed before the 'task' is begun",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name": "id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "taskId",
+            "type": "INT",
+            "foreignKey": {
+                "table": "tasks",
+                "column": "id"
+            }
+        },
+        {
+            "name": "preTaskId",
+            "type": "INT"
+        }
+    ]
+}

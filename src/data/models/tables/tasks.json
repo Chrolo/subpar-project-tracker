@@ -1,0 +1,36 @@
+{
+    "name": "tasks",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name": "id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "taskName",
+            "type": "TEXT"
+        },
+        {
+            "name": "staffName",
+            "type": "TEXT"
+        },
+        {
+            "name": "lastUpdated",
+            "type": "DATE"
+        },
+        {
+            "name": "completed",
+            "type": "DATE"
+        },
+        {
+            "name": "episodeId",
+            "type": "int",
+            "foreignKey": {
+                "table": "episodes",
+                "column": "id"
+            }
+        }
+    ]
+}

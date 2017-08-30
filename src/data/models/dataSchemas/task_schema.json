@@ -1,0 +1,41 @@
+{
+    "type":"object",
+    "properties":{
+        "id": {
+            "type": "integer",
+            "description": "The id of the task"
+        },
+        "taskName": {
+            "type": "string",
+            "description": "The name of the task"
+        },
+        "completed": {
+            "type": "date",
+            "description": "the date the task was completed."
+        },
+        "staffName": {
+            "type": "string",
+            "description": "name of the staff memeber responsible for this task"
+        },
+        "dependsOn":{
+            "type": "array",
+            "description": "Tasks that must be completed before this task.",
+            "items":{
+                "type": "int",
+                "description": "TaskId"
+            }
+        },
+        "lastUpdated":{
+            "type": "date",
+            "description": "When the task was last updated"
+        },
+        "episodeId": {
+            "type": "int",
+            "description": "the episode the task is related to"
+        }
+    },
+    "required": [
+        "staffName",
+        "taskName"
+    ]
+}

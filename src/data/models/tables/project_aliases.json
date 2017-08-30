@@ -1,0 +1,25 @@
+{
+    "name": "project_aliases",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name":"id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "projectId",
+            "type": "INT",
+            "foreignKey": {
+                "table": "projects",
+                "column": "id"
+            }
+        },
+        {
+            "name": "alias",
+            "type": "VARCHAR(255)",
+            "unique":true
+        }
+    ]
+}

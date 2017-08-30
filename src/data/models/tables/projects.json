@@ -1,0 +1,25 @@
+{
+    "name": "projects",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name":"id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name":"name",
+            "type": "VARCHAR(255)",
+            "unique": true
+        },
+        {
+            "name": "completed",
+            "type": "DATE"
+        },
+        {
+            "name": "projectType",
+            "type": "TEXT"
+        }
+    ]
+}
