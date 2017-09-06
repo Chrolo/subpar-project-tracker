@@ -3,11 +3,12 @@ const path = require('path');
 const TABLES_FOLDER_PATH = path.resolve(__dirname,'./tables/');
 
 
-let dbSchema = {};
+let databaseSchema = {};
+
 function refreshSchemas() {
     const filesFound= fs.readdirSync(TABLES_FOLDER_PATH);
     if(filesFound.length > 0){
-        dbSchema = {
+        databaseSchema = {
             name: 'subpar', //default database name
             tables: filesFound.map((tableDefFile)=>{
                 const filePath = path.resolve(TABLES_FOLDER_PATH,tableDefFile);
@@ -34,6 +35,6 @@ function getTableSchema(tableName){
 refreshSchemas();
 module.exports= {
     getTableSchema,
-    schemas,
+    databaseSchema,
     refreshSchemas
 };

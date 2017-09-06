@@ -1,4 +1,4 @@
-const {getTableSchema, schemas} = require('../models/dbDefLoader.js');
+const {getTableSchema} = require('../models/dbDefLoader.js');
 
 function createInsertForData(tableName, rows){
     //Check table is known to us:
