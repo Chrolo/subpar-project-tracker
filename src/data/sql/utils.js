@@ -57,9 +57,12 @@ function prepareDataForInsert(data, dataType) {
         return null;
     }
 
+    //Strip out any SQL length declarations
+    dataType = dataType.replace(/\(\d+\)/,'');
 
     switch(dataType){
         case 'TEXT':
+        case 'VARCHAR':
             return data+'';
         break;
 

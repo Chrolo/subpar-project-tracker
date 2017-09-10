@@ -20,11 +20,16 @@ const defaultSettings = {
 const DEFAULT_CONFIG_PATH = path.resolve(__dirname, '../config.json');
 
 function getConfig(configFile = DEFAULT_CONFIG_PATH){
+    if(!configFile || typeof configFile !== 'string'){
+        throw new TypeError(`Config file path must be string, was ${configFile} ${typeof configFile}.`);
+    }
+
+
     let settings = JSON.parse(JSON.stringify(defaultSettings)); //a cheap deep copy
 
     //If non-default specified, resolve relative to process:
     if(configFile !== DEFAULT_CONFIG_PATH){
-        configFile = path.resolve(process.cwd,configFile);
+        configFile = path.resolve(process.cwd(), configFile);
     }
 
     let loadedFile = {};
@@ -43,7 +48,6 @@ function getConfig(configFile = DEFAULT_CONFIG_PATH){
 
 
     const finalConfig = deepMergeObject(settings, loadedFile);
-    console.info('[ConfigFileLoader] Final config was:\n', finalConfig);
     return finalConfig;
 }
 // Note, properties in object2 overwrite those in object2

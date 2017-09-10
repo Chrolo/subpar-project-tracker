@@ -22,7 +22,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         getConnection().then((connection) => {
                 return getListOfProjects(connection).then((result)=>{
                     connection.release();
-                    res.send(result);
+                    return res.send(result);
                 }).catch((err)=>{
                     connection.release();
                     return Promise.reject(err);
@@ -30,7 +30,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         })
         .catch((err)=>{
             console.error('[Error] Error when retrieving list of projects', err);
-            res.status(500).send();
+            return res.status(500).send();
         });
     });
 
@@ -38,29 +38,33 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         console.log('Saw project request with params:', req.params);
         getConnection().then((connection)=>{
             return getFullProjectInfoByName(connection, req.params.projectName).then((result)=>{
-                res.send(result);
+                if(result === null){
+                    return res.status(404).send();
+                }
+                return res.send(result);
+
             }).catch((err)=>{
                 connection.release();
                 return Promise.reject(err);
             });
         })
         .catch((err)=>{
-            console.error(`[Error] Error when retrieving project ${req.params.projectName}`, err);
-            res.status(500).send();
+            console.error(`[Error] Error when retrieving project '${req.params.projectName}': `, err);
+            return res.status(500).send();
         });
     });
 
     ProjectsRouter.get('/:projectName/:episodeNumber',(req,res,next)=>{
         //TODO: retrieve and send episode information
         console.log('[ProjectsRouter] saw request to', req.url, ' with params', req.params);
-        res.status(501).send('Sorry, I haven\'t got around to this yet');
+        return res.status(501).send('Sorry, I haven\'t got around to this yet');
     })
 
     ProjectsRouter.patch('/:projectName/:episodeNumber/:taskName',(req, res)=>{
         getConnection().then((connection)=>{
 
             return getEpisodeByNumberForProject(connection, req.params.projectName).then((result)=>{
-                res.send(result);
+                return res.send(result);
             }).catch((err)=>{
                 connection.release();
                 return Promise.reject(err);
@@ -68,9 +72,9 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         })
         .catch((err)=>{
             console.error(`[Error] Error when patching on ${req.url}\n`, err);
-            res.status(500).send();
+            return res.status(500).send();
         });
-        res.status(501).send('Sorry, I haven\'t got around to this yet');
+        return res.status(501).send('Sorry, I haven\'t got around to this yet');
     });
 
     return ProjectsRouter;

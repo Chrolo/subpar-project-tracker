@@ -1,7 +1,7 @@
 const expect = require('chai').expect;
 const utils = require('./utils.js');
 
-describe('data/ sql/ utils', () => {
+describe('data/sql/utils', () => {
 
     describe('prepareDataForInsert', () => {
         it('turns `undefined` or `null` into `null`', () => {
@@ -35,7 +35,7 @@ describe('data/ sql/ utils', () => {
             });
         });
 
-        describe('TEXT type', () => {
+        describe('TEXT or VARCHAR types', () => {
             it('forces most types to be strings', () => {
                 const checks = [
                     {value: 0, string: '0'},
@@ -44,6 +44,7 @@ describe('data/ sql/ utils', () => {
                 ];
                 checks.forEach((check) => {
                     expect(utils.prepareDataForInsert(check.value, 'TEXT')).to.equal(check.string);
+                    expect(utils.prepareDataForInsert(check.value, 'VARCHAR')).to.equal(check.string);
                 });
             });
         });

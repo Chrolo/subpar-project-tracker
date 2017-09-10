@@ -2,16 +2,7 @@ const {promiseQuery} = require('./utils.js');
 const {getEpisodesForProjectId} = require('./episodes');
 
 function getListOfProjects(connection){
-    return new Promise((resolve, reject)=>{
-        connection.query('SELECT name FROM projects;',(err,result)=>{
-            if(err){
-                console.error('[ProjectsSQL] getListOfProjects failed with error:', err);
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+    return promiseQuery(connection,'SELECT name FROM projects;');
 }
 
 function getFullProjectInfoByName(connection, name){
@@ -28,11 +19,10 @@ function getBasicProjectInfoByName(connection, projectName){
     //note: this would require filtering results afterwards.
     return promiseQuery(connection, 'SELECT * FROM projects WHERE name = ?',[projectName])
         .then((result)=>{
-            if(result.length != 1) {
-                reject({
-                    message:`[getFullProjectInfoByName] expected 1 result for ${name}, got ${result.length}`,
-                    resCount: result.length
-                });
+            if(result.length > 1) {
+                return Promise.reject(`[getFullProjectInfoByName] expected 1 result for ${name}, got ${result.length}`);
+            } else if(result.length === 0){
+                return null;
             }
             return result[0];
     });
@@ -49,6 +39,10 @@ function getAliasesForProject(connection, projectId){
 }
 
 function hydrateProjectData(connection, projectData){
+    if(!projectData){
+        return projectData;
+    }
+
     return Promise.all([
         getEpisodesForProjectId(connection, projectData.id),
         getAliasesForProject(connection,projectData.id)

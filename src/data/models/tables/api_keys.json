@@ -2,14 +2,37 @@
     "name":"api_keys",
     "primaryKey": "id",
     "fields":[
-        {"name": "id", "type": "INT","autoIncrement": true,"notNull": true},
-        {"name":"apiKey", "type": "CHAR(36)", "unique": true, "notNull": true},
-        {"name":"description", "type": "TEXT", "description": "Short description of this key (ie/ 'WebsiteKey', 'ChroloBotKey', etc)"},
-        {"name":"email", "type": "TEXT", "description": "email address of person assigned to this key."},
-        {"name": "data_viewLevel", "type":"INT", "description": "what level of information can they view? 0 = lowest permissions"}
-
-    ],
-    "ignored":[
-        {"name": "projectEdit", "type":"BOOL"}
+        {
+            "name": "id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name":"apiKey",
+            "type": "CHAR(36)",
+            "unique": true,
+            "notNull": true
+        },
+        {
+            "name":"description",
+            "type": "TEXT",
+            "description": "Short description of this key (ie/ 'WebsiteKey', 'ChroloBotKey', etc)"
+        },
+        {
+            "name":"email",
+            "type": "TEXT",
+            "description": "email address of person assigned to this key."
+        },
+        {
+            "name": "permissionId",
+            "type":"INT",
+            "description": "the row in permissions that specifies their access",
+            "foreignKey": {
+                "table": "permissions",
+                "column": "id"
+            },
+            "unique": true
+        }
     ]
 }

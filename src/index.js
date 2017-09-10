@@ -1,4 +1,5 @@
 const app = require('express')();
+const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const path = require('path');
 const argv = require('./argumentHandler.js');
@@ -33,6 +34,9 @@ new Promise((res,rej)=>{
     });
 }).then(()=>{
     console.info('Creating server instance');
+    //add some core express parts
+    app.use(bodyParser.json());
+
     //Import and assign routers:
     const ApiKeyRouter = require('./apiRouting/apiKeyRouter.js')(connectionPool);
     const ProjectsRouter = require('./apiRouting/projects.js')(connectionPool);
@@ -42,11 +46,6 @@ new Promise((res,rej)=>{
     app.use('/projects',ProjectsRouter);
     app.use('/episodes', EpisodesRouter);
     console.log('Routers applied');
-
-    app.all('*',(req, res)=>{
-        console.log(`Saw request to ${req.url}`);
-        res.send('Hello World!');
-    });
 
     console.info('Starting server');
     app.listen(config.server.port, ()=>{

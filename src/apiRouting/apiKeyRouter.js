@@ -20,8 +20,7 @@ function ApiKeyRouterFactory(mysqlConnectionPool){
         //Check permissions and attach to request object.
         getConnection().then((connection) => {
                 //Get the API token:
-                console.log('[ApiKeyRouter] headers seen:\n',req.headers);
-                const apiKey = req.headers['api-key'];
+                const apiKey = req.headers['x-api-key'];
                 //TODO: allow api token as query parameter too?
 
                 if(!apiKey){
@@ -36,14 +35,12 @@ function ApiKeyRouterFactory(mysqlConnectionPool){
                     //if no permissions have been found for that API token:
                     if(!result){
                         //TODO: Server config to allow default view permissions without API token?
-                        res.status(403).send('Token not recognised');
+                        return res.status(403).send('Token not recognised');
                     }
 
                     //Attach the permissions data
                     req.apiPermission = result;
 
-                    console.log('[ApiKeyRouter] sql result was:\n', result);
-                    console.log('[ApiKeyRouter] permissions set as:\n',req.apiPermission);
                     next();
                 }).catch((err)=>{
                     connection.release();
@@ -59,7 +56,8 @@ function ApiKeyRouterFactory(mysqlConnectionPool){
     //TODO: REMOVE THIS
     console.error('[ApiKeyRouterFactory] REMOVE CODE ALLOWING CREATION OF API_TOKENS');
     ApiKeyRouter.post('/apiTokens/',(req,res)=>{
-        if(req.headers.host !== 'localhost:3000'){
+        console.log('[creating api token] saw headers: \n\t',req.headers);
+        if(req.headers.host !== 'localhost:1337'){
             res.status(403).send();
         } else {
             //TODO: get body-parser

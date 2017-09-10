@@ -1,0 +1,42 @@
+{
+    "name":"permissions",
+    "primaryKey": "id",
+    "fields":[
+        {
+            "name": "id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name": "projectView",
+            "type": "INT",
+            "description": "the ability to receive data from the API."
+        },
+        {
+            "name": "taskUpdate",
+            "type": "INT",
+            "description": "the ability to update tasks."
+        },
+        {
+            "name": "projectDetailUpdate",
+            "type": "INT",
+            "description": "the ability to change the details of a project. Includes ability to add new episode records."
+        },
+        {
+            "name": "projectCreation",
+            "type": "INT",
+            "description": "the ability to create a new project."
+        },
+        {
+            "name": "apiTokenCreate",
+            "type": "INT",
+            "description": "the ability to create new API tokens."
+        },
+        {
+            "name": "apiTokenRevoke",
+            "type": "INT",
+            "description": "the ability to revoke API tokens (this is meant for admins)."
+        }
+    ]
+}

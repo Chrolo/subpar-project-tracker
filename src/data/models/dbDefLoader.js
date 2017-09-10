@@ -28,7 +28,7 @@ function refreshSchemas() {
 }
 
 function getTableSchema(tableName){
-    return schemas.tables.find( tableObject => tableObject.name == tableName);
+    return databaseSchema.tables.find( tableObject => tableObject.name == tableName);
 }
 
 //Call it to get initial schema load
