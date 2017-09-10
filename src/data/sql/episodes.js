@@ -27,7 +27,13 @@ function getEpisodesForProjectId(connection, projectId) {
 }
 
 function getEpisodeByNumberForProject(connection, episodeNumber, projectId){
-    return promiseQuery(connection, 'SELECT * FROM episodes WHERE projectId = ? AND episodeNumber = ?;',[projectId,episodeNumber]);
+    return promiseQuery(connection, 'SELECT * FROM episodes WHERE projectId = ? AND episodeNumber = ?;',[projectId,episodeNumber])
+    .then((results)=>{
+        if(results.length > 1){
+            return Promise.reject({message:`[getEpisodeByNumberForProject] Expected 1 result got ${results.length}`, params:{projectId,episodeNumber}});
+        }
+        return results[0];
+    });
 }
 
 

@@ -53,29 +53,6 @@ function ApiKeyRouterFactory(mysqlConnectionPool){
         });
     });
 
-    //TODO: REMOVE THIS
-    console.error('[ApiKeyRouterFactory] REMOVE CODE ALLOWING CREATION OF API_TOKENS');
-    ApiKeyRouter.post('/apiTokens/',(req,res)=>{
-        console.log('[creating api token] saw headers: \n\t',req.headers);
-        if(req.headers.host !== 'localhost:1337'){
-            res.status(403).send();
-        } else {
-            //TODO: get body-parser
-            const apiTokenData = {
-                temp: req.body.temp //TODO: fill out correct data.
-            };
-
-            createNewApiKey(connection,req.body).then((result)=>{
-                res.status(200).json({
-                    token:result.apiKey
-                });
-            }).catch((err)=>{
-                console.error('[ApiKeyRouter] Error creating new API token.\n', err);
-                res.status(500).send();
-            });
-        }
-    })
-
     return ApiKeyRouter;
 }
 

@@ -28,6 +28,11 @@
                     "description": "email address of person assigned to this key."
                 },
                 {
+                    "name": "staffName",
+                    "type": "TEXT",
+                    "description": "Staff member assigned to this key."
+                },
+                {
                     "name": "permissionId",
                     "type": "INT",
                     "description": "the row in permissions that specifies their access",

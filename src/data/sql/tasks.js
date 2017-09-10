@@ -2,29 +2,16 @@ const mysql = require('mysql');
 const {promiseQuery} = require('./utils.js');
 
 function getTasksByEpisodeId(connection, episodeId){
-    return new Promise((resolve, reject)=>{
-        connection.query('SELECT * FROM tasks WHERE episodeId = ? ;', episodeId,(err,result)=>{
-            if(err){
-                reject(err);
-            } else {
-                Promise.all(result.map((task)=>{
-                    return hydrateTaskData(connection,task);
-                })).then(resolve);
-            }
+    return promiseQuery(connection,'SELECT * FROM tasks WHERE episodeId = ? ;', episodeId)
+        .then((result)=>{
+            return Promise.all(result.map((task)=>{
+                return hydrateTaskData(connection,task);
+            }));
         });
-    });
 }
 
 function getTasksByStaffName(connection, staffName){
-    return new Promise((resolve, reject)=>{
-        connection.query('SELECT * FROM tasks WHERE staffName = ? ;', staffName,(err,result)=>{
-            if(err){
-                reject(err);
-            } else {
-                resolve(result);
-            }
-        });
-    });
+    return promiseQuery('SELECT * FROM tasks WHERE staffName = ? ;', staffName);
 }
 
 function hydrateTaskData(connection, task){
@@ -49,35 +36,38 @@ function getTaskPreRequisiteTasks(connection, taskId) {
     });
 }
 
-function setTaskComplete(connection, taskId) {
+function setTaskCompletion(connection, taskId, status=true) {
     if(!Number.isFinite(taskId)){
         return Promise.reject(`Task Id must be an integer number, got ${taskId} : ${typeof taskId}`);
     }
 
-    return promiseQuery(connection,'UPDATE tasks SET completed = NOW() WHERE taskId = ?', taskId).
-    then((result)=>{
-        console.log('[setTaskComplete] returned: ',result);
-        return result;
+    const completed= status ? 'NOW()' : 'NULL';
+    return promiseQuery(connection,`UPDATE tasks SET completed = ${completed} WHERE id = ?`, taskId)
+    .then((result)=>{
+        //TODO: verify that UPDATE processed successfully?
+        return true;
     });
 }
 
-function updateAssignedStaffMember(connection, taskId, staffMember) {
+function setAssignedStaffMember(connection, taskId, staffMember) {
     //TODO: Verify taskID and staff Member
-    return promiseQuery(connection,'UPDATE tasks SET staff = ? WHERE taskId = ?', [staffMember,taskId]).
-    then((result)=>{
-        console.log('[setTaskComplete] returned: ',result);
-        return result;
+    return promiseQuery(connection,'UPDATE tasks SET staff = ? WHERE id = ?', [staffMember,taskId])
+    .then((result)=>{
+        //TODO: verify that UPDATE processed successfully?
+        return true;
     });
 }
 
 function getTasksByEpisodeIdAndTaskName(connection, episodeId, taskname) {
-    return getTasksByEpisodeId(connection, episodeId).then((result)=>{
-        return result.filter( row => row.name === taskname );
+    return getTasksByEpisodeId(connection, episodeId).then((results)=>{
+        return results.filter( row => row.taskName === taskname );
     });
 }
 
 module.exports = {
     getTasksByEpisodeId,
+    getTasksByEpisodeIdAndTaskName,
     getTasksByStaffName,
-    setTaskComplete
+    setAssignedStaffMember,
+    setTaskCompletion
 };

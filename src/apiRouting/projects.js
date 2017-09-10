@@ -1,6 +1,8 @@
 const ProjectsRouter = require('express').Router();
-const {getListOfProjects, getFullProjectInfoByName} = require('../data/sql/projects.js');
-const {getEpisodeByNumberForProject} = require('../data/sql/episodes.js');
+const { getListOfProjects, getFullProjectInfoByName, getBasicProjectInfoByName} = require('../data/sql/projects.js');
+const { getEpisodeByNumberForProject } = require('../data/sql/episodes.js');
+const { getTasksByEpisodeIdAndTaskName, setTaskCompletion } = require('../data/sql/tasks.js');
+const { isAllowedToUpdateTask } = require('../data/permissionProcessing.js')
 
 function ProjectsRouterFactory(mysqlConnectionPool){
 
@@ -54,16 +56,11 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         });
     });
 
-    ProjectsRouter.get('/:projectName/:episodeNumber',(req,res,next)=>{
+    ProjectsRouter.get('/:projectName/episodes/:episodeNumber',(req,res,next)=>{
         //TODO: retrieve and send episode information
         console.log('[ProjectsRouter] saw request to', req.url, ' with params', req.params);
-        return res.status(501).send('Sorry, I haven\'t got around to this yet');
-    })
-
-    ProjectsRouter.patch('/:projectName/:episodeNumber/:taskName',(req, res)=>{
         getConnection().then((connection)=>{
-
-            return getEpisodeByNumberForProject(connection, req.params.projectName).then((result)=>{
+            return getEpisodeByNumberForProject(connection, req.params.episodeNumber, req.params.projectName).then((result)=>{
                 return res.send(result);
             }).catch((err)=>{
                 connection.release();
@@ -74,7 +71,58 @@ function ProjectsRouterFactory(mysqlConnectionPool){
             console.error(`[Error] Error when patching on ${req.url}\n`, err);
             return res.status(500).send();
         });
-        return res.status(501).send('Sorry, I haven\'t got around to this yet');
+    })
+
+    ProjectsRouter.patch('/:projectName/episodes/:episodeNumber/tasks/:taskName',(req, res)=>{
+        console.log('[ProjectsRouter] saw request to', req.url, ' with params', req.params,'\nApi permissions are', req.apiPermission);
+        getConnection().then((connection)=>{
+            return getBasicProjectInfoByName(connection, req.params.projectName)
+            .then((projectInfo)=>{
+                return getEpisodeByNumberForProject(connection, req.params.episodeNumber, projectInfo.id);
+            }).then((episodeInfo)=>{
+                //Make sure we got data
+                if(!episodeInfo) {return Promise.reject({message:'getEpisodeByNumberForProject returned a falsey value.', data: episodeInfo});}
+
+                return getTasksByEpisodeIdAndTaskName(connection, episodeInfo.id, req.params.taskName);
+            }).then((taskResult)=>{
+                if(taskResult.length === 1){
+                    const task = taskResult[0];
+
+                    //Check permissions:
+                    if(!isAllowedToUpdateTask(task,req.apiPermission)){
+                        return res.status(403).send('You do not have permissions to edit that task');
+                    }
+
+
+                    //determine actions to perform:
+                    let updates = [];
+                    if(typeof req.body.completed !== 'undefined'){
+                        updates.push(setTaskCompletion(connection, task.id, req.body.completed));
+                    }
+
+                    if(typeof req.body.newStaff !== 'undefined'){
+                        updates.push(setAssignedStaffMember(connection, task.id, req.body.newStaff));
+                    }
+
+                    return Promise.all(updates).then(()=>{
+                        res.send(`Updated ${req.params.taskName} from ep${req.params.episodeNumber} of ${req.params.projectName}.`);
+                    });
+
+                } else {
+                    console.error(`[ErrorUpdatingTask] Could not update ${req.params.taskName} from ep${req.params.episodeNumber} of ${req.params.projectName}. Found ${taskResult.length} matching tasks.`);
+                    connection.release();
+                    res.status(400).send(`Couldn't find match for task ${req.params.taskName} from ep${req.params.episodeNumber} of ${req.params.projectName}.`);
+                }
+            }).catch((err)=>{
+                connection.release();
+                console.error('[ProjectRouter::PATCH task]', err);
+                return res.status(500).send();
+            });
+        })
+        .catch((err)=>{
+            console.error(`[Error] Error when patching on ${req.url}\n`, err);
+            return res.status(500).send();
+        });
     });
 
     return ProjectsRouter;

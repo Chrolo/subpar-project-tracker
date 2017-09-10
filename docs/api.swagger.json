@@ -109,7 +109,7 @@
                 }
             }
         },
-        "/projects/:projectName/:episodeNumber/:taskId"
+        "/projects/:projectName/episodes/:episodeNumber/tasks/:taskName"
             "patch": {
                 "summary": "update the status of a task",
                 "description": "edit the status of a task",
