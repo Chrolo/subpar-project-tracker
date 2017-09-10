@@ -56,7 +56,7 @@ __Example config__
 The following permissions can be set against any API token created:
 
 | permission | description | values |
-|---|
+| - | - | - |
 | projectView | the ability to receive data from the API | `basic`, `staff` or `admin` |
 | taskUpdate | the ability to update tasks. | `false`, `assigned`, `all` |
 | projectDetailUpdate | the ability to change the details of a project. Includes ability to add new episode records | `false`, `assigned`, `all` |
