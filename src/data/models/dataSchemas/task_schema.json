@@ -1,4 +1,5 @@
 {
+    "$id":"task_schema.json",
     "type":"object",
     "properties":{
         "id": {
@@ -21,8 +22,8 @@
             "type": "array",
             "description": "Tasks that must be completed before this task.",
             "items":{
-                "type": "int",
-                "description": "TaskId"
+                "type": "integer",
+                "description": "TaskId of task that should be complete before this one"
             }
         },
         "lastUpdated":{
@@ -30,7 +31,7 @@
             "description": "When the task was last updated"
         },
         "episodeId": {
-            "type": "int",
+            "type": "integer",
             "description": "the episode the task is related to"
         }
     },

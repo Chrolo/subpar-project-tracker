@@ -1,8 +1,9 @@
 {
+    "$id": "episode_schema.json",
     "type": "object",
     "properties": {
-        "id":{"type": "integer"},
-        "episodeNumber":{
+        "id": {"type": "integer"},
+        "episodeNumber": {
             "type": "integer",
             "description": "The episode number."
         },
@@ -10,18 +11,21 @@
             "type": "array",
             "items": {
                 "$ref": "task_schema.json"
-            },
+            }
         },
         "completed": {
             "type": ["string", "null"],
             "description": "Date the episode was completed (null if incomplete)"
         },
-        "files":{
+        "files": {
             "type": "array",
             "description": "array of release files for this episode (can be varying quality and versions)",
             "items": {
                 "$ref": "episodeFile_schema.json"
             }
         }
-    }
+    },
+    "required":[
+        "episodeNumber"
+    ]
 }

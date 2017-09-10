@@ -1,4 +1,5 @@
 {
+    "$id": "episodeFile_schema.json",
     "type": "object",
     "description": "A release file associated to an episode of a project",
     "properties": {

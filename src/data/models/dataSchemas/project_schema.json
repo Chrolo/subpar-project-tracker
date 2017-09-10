@@ -1,4 +1,5 @@
 {
+    "$id": "project_schema.json",
     "type": "object",
     "properties": {
         "id": {
@@ -13,7 +14,7 @@
             "type": "array",
             "items": {
                 "type": "string"
-            },
+            }
         },
         "episodes": {
             "type": "array",

@@ -1,5 +1,5 @@
 {
-    "id": "projectTemplate_schema.json",
+    "$id": "projectTemplate_schema.json",
     "type": "object",
     "properties":{
         "name": {"type": "string","description": "The name of the project"},
@@ -23,5 +23,11 @@
             },
             "description": "The standard set of tasks to be applied to each episode."
         }
-    }
+    },
+    "required":[
+        "name",
+        "episodeCount",
+        "projectType",
+        "defaultTasks"
+    ]
 }
