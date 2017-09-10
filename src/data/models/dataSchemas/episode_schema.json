@@ -13,7 +13,7 @@
             },
         },
         "completed": {
-            "type": "date",
+            "type": ["string", "null"],
             "description": "Date the episode was completed (null if incomplete)"
         },
         "files":{

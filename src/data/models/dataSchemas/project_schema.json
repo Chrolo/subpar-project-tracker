@@ -22,7 +22,7 @@
             }
         },
         "completed": {
-            "type": "date",
+            "type": ["string", "null"],
             "description": "Date the project was completed (null if incomplete)"
         },
 
