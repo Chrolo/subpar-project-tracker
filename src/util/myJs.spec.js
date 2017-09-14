@@ -18,7 +18,7 @@ class FunctionSpy {
 
 
 describe('[util/myjs.js] My custom prototype extenders',()=>{
-    describe('Object.forEach();',()=>{
+    describe('Object.prototype.forEach();',()=>{
         it('calls the callback for each key in the object, with `(value, key)` as args',()=>{
             const spy = new FunctionSpy();
             const testObject = {test: 'with', about:3, keys:()=>{}};
@@ -48,6 +48,16 @@ describe('[util/myjs.js] My custom prototype extenders',()=>{
             spy.calledWith.forEach((argSet)=>{
                 expect(argSet[2]).to.equal(testObject);
             });
+        });
+
+        it('does not show up in Object.keys(obj) calls',()=>{
+            const testObject = {
+                these: 2,
+                are: 3,
+                keys: 5
+            };
+
+            expect(Object.keys(testObject)).to.not.include('forEach');
         });
     });
 

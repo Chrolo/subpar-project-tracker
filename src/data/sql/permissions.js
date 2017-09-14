@@ -28,9 +28,10 @@ function convertSQLPermissionsToEnums(sqlResultObject){
 // Data Constants
 
 const DATA_LEVELS = {
-    BASIC: {js:'basic', sql:0 },
+    PUBLIC: {js:'public', sql:0 },
     STAFF: {js:'staff', sql:1 },
-    ADMIN: {js:'admin', sql:2 }
+    ADMIN: {js:'admin', sql:2 },
+    DEBUG: {js:'debug', sql:3 }
 };
 const OWNERSHIPS = {
     NONE: {js:null, sql:0 },
@@ -43,7 +44,7 @@ const BOOLEAN = {
 };
 
 const FIELD_DATA = {
-    projectView: DATA_LEVELS,
+    dataViewLevel: DATA_LEVELS,
     taskUpdate: OWNERSHIPS,
     projectDetailUpdate: OWNERSHIPS,
     projectCreation: BOOLEAN,

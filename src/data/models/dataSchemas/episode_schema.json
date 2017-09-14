@@ -2,29 +2,40 @@
     "$id": "episode_schema.json",
     "type": "object",
     "properties": {
-        "id": {"type": "integer"},
+        "id": {"type": "integer", "dataLevel": "debug"},
         "episodeNumber": {
             "type": "integer",
-            "description": "The episode number."
+            "description": "The episode number.",
+            "dataLevel": "public"
+        },
+        "episodeName": {
+            "type": "string",
+            "description": "The name of the episode",
+            "dataLevel": "public"
         },
         "tasks": {
             "type": "array",
             "items": {
                 "$ref": "task_schema.json"
-            }
+            },
+            "dataLevel": "public"
         },
         "completed": {
             "type": ["string", "null"],
-            "description": "Date the episode was completed (null if incomplete)"
+            "format": "date-time",
+            "description": "Date the episode was completed (null if incomplete)",
+            "dataLevel": "public"
         },
         "files": {
             "type": "array",
             "description": "array of release files for this episode (can be varying quality and versions)",
             "items": {
                 "$ref": "episodeFile_schema.json"
-            }
+            },
+            "dataLevel": "public"
         }
     },
+    "additionalProperties": false,
     "required":[
         "episodeNumber"
     ]

@@ -4,27 +4,33 @@
     "properties": {
         "id": {
             "type": "integer",
-            "description": "the project id"
+            "description": "the project id",
+            "dataLevel": "debug"
         },
         "name": {
             "type": "string",
-            "description": "The name of the project"
+            "description": "The name of the project",
+            "dataLevel": "public"
         },
         "aliases": {
             "type": "array",
             "items": {
                 "type": "string"
-            }
+            },
+            "dataLevel": "public"
         },
         "episodes": {
             "type": "array",
             "items": {
                 "$ref": "episode_schema.json"
-            }
+            },
+            "dataLevel": "public"
         },
         "completed": {
             "type": ["string", "null"],
-            "description": "Date the project was completed (null if incomplete)"
+            "format": "date-time",
+            "description": "Date the project was completed (null if incomplete)",
+            "dataLevel": "public"
         },
 
         "projectType": {
@@ -35,7 +41,9 @@
                 "OVA",
                 "FILM",
                 "MISC"
-            ]
+            ],
+            "dataLevel": "public"
         }
-    }
+    },
+    "additionalProperties": false
 }

@@ -24,6 +24,7 @@
             "description": "The standard set of tasks to be applied to each episode."
         }
     },
+    "additionalProperties": false,
     "required":[
         "name",
         "episodeCount",

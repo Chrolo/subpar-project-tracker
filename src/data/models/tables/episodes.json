@@ -26,7 +26,7 @@
         },
         {
             "name": "completed",
-            "type": "DATE"
+            "type": "DATETIME"
         }
     ]
 }

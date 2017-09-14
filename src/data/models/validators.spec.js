@@ -1,6 +1,13 @@
 const {expect} = require('chai');
 const validators = require('./validators.js');
 
+function objectCloneAndExpand(...args){
+    return args.reduce((acc,object)=>{
+        let clone = JSON.parse(JSON.stringify(object),null);
+        return Object.assign(acc,clone);
+    },{});
+}
+
 describe('data/models/validators',()=>{
 
     it('Has loaded expected schemas',()=>{
@@ -9,10 +16,11 @@ describe('data/models/validators',()=>{
             'episode_schema.json',
             'project_schema.json',
             'projectTemplate_schema.json',
-            'task_schema.json'
+            'task_schema.json',
+            'taskUpdatePatch_schema.json'
         ];
         const loadedValidators = Object.keys(validators);
-        expect(loadedValidators.length).to.equal(expectedSchemas.length);
+        expect(loadedValidators.length,`Expected a validator for each schema.`).to.equal(expectedSchemas.length);
         expectedSchemas.forEach((expected)=>{
             expect(loadedValidators).to.include(expected);
         });
@@ -23,9 +31,9 @@ describe('data/models/validators',()=>{
             "taskName": "TS",
             "staffName": "Chrolo"
         };
-        const maxData = Object.assign(minValidData,{
+        const maxData = objectCloneAndExpand(minValidData,{
                    "id": 5,
-                   "lastUpdated": "2017-09-11",
+                   "lastUpdated": "2017-09-11T12:45:32.000Z",
                    "completed": null,
                    "episodeId": 1,
                    "dependsOn": [ 7, 6 ]
@@ -56,7 +64,7 @@ describe('data/models/validators',()=>{
         const minValidData = {
             "episodeNumber": 2
         };
-        const maxData = Object.assign(minValidData,{
+        const maxData = objectCloneAndExpand(minValidData,{
             "id": 2,
             "tasks": [
                 {

@@ -4,19 +4,24 @@
     "properties":{
         "id": {
             "type": "integer",
-            "description": "The id of the task"
+            "description": "The id of the task",
+            "dataLevel": "public"
         },
         "taskName": {
             "type": "string",
-            "description": "The name of the task"
+            "description": "The name of the task",
+            "dataLevel": "public"
         },
         "completed": {
             "type": ["string", "null"],
-            "description": "the date the task was completed."
+            "format": "date-time",
+            "description": "the date the task was completed.",
+            "dataLevel": "public"
         },
         "staffName": {
             "type": "string",
-            "description": "name of the staff memeber responsible for this task"
+            "description": "name of the staff memeber responsible for this task",
+            "dataLevel": "public"
         },
         "dependsOn":{
             "type": "array",
@@ -24,17 +29,22 @@
             "items":{
                 "type": "integer",
                 "description": "TaskId of task that should be complete before this one"
-            }
+            },
+            "dataLevel": "public"
         },
         "lastUpdated":{
             "type": ["string", "null"],
-            "description": "When the task was last updated"
+            "format": "date-time",
+            "description": "When the task was last updated",
+            "dataLevel": "public"
         },
         "episodeId": {
             "type": "integer",
-            "description": "the episode the task is related to"
+            "description": "the episode the task is related to",
+            "dataLevel": "debug"
         }
     },
+    "additionalProperties": false,
     "required": [
         "staffName",
         "taskName"

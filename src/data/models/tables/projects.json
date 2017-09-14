@@ -15,7 +15,7 @@
         },
         {
             "name": "completed",
-            "type": "DATE"
+            "type": "DATETIME"
         },
         {
             "name": "projectType",

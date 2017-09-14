@@ -9,9 +9,9 @@
             "notNull": true
         },
         {
-            "name": "projectView",
+            "name": "dataViewLevel",
             "type": "INT",
-            "description": "the ability to receive data from the API."
+            "description": "the sensitivity level of data that is returned from the API."
         },
         {
             "name": "taskUpdate",

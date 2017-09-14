@@ -2,7 +2,10 @@ const ProjectsRouter = require('express').Router();
 const { getListOfProjects, getFullProjectInfoByName, getBasicProjectInfoByName} = require('../data/sql/projects.js');
 const { getEpisodeByNumberForProject } = require('../data/sql/episodes.js');
 const { getTasksByEpisodeIdAndTaskName, setTaskCompletion } = require('../data/sql/tasks.js');
-const { isAllowedToUpdateTask } = require('../data/permissionProcessing.js')
+const { isAllowedToUpdateTask } = require('../data/permissionProcessing.js');
+const filter = require('../data/models/filter.js');
+const validators = require('../data/models/validators.js');
+
 
 function ProjectsRouterFactory(mysqlConnectionPool){
 
@@ -43,6 +46,10 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                 if(result === null){
                     return res.status(404).send();
                 }
+
+                //filter the result by project_schema.json
+                result = filter(result, 'project_schema.json', req.apiPermission.permissions.dataViewLevel);
+                //then send it
                 return res.send(result);
 
             }).catch((err)=>{
@@ -60,7 +67,15 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         //TODO: retrieve and send episode information
         console.log('[ProjectsRouter] saw request to', req.url, ' with params', req.params);
         getConnection().then((connection)=>{
-            return getEpisodeByNumberForProject(connection, req.params.episodeNumber, req.params.projectName).then((result)=>{
+
+            return getBasicProjectInfoByName(connection, req.params.projectName)
+            .then((projectInfo)=>{
+                return getEpisodeByNumberForProject(connection, req.params.episodeNumber, projectInfo.id);
+            }).then((result)=>{
+                if(!result){
+                    return res.status(404).send(`Couldn't find info for episode ${req.params.episodeNumber} for project ${req.params.projectName}`);
+                }
+                result = filter(result,'episode_schema.json',req.apiPermission.permissions.dataViewLevel);
                 return res.send(result);
             }).catch((err)=>{
                 connection.release();
@@ -68,13 +83,18 @@ function ProjectsRouterFactory(mysqlConnectionPool){
             });
         })
         .catch((err)=>{
-            console.error(`[Error] Error when patching on ${req.url}\n`, err);
+            console.error(`[Error] Error with GET on ${req.url}\n`, err);
             return res.status(500).send();
         });
     })
 
     ProjectsRouter.patch('/:projectName/episodes/:episodeNumber/tasks/:taskName',(req, res)=>{
-        console.log('[ProjectsRouter] saw request to', req.url, ' with params', req.params,'\nApi permissions are', req.apiPermission);
+        //Check the body is appropriate:
+        if(!validators['taskUpdatePatch_schema.json'](req.body)){
+            return res.status(400).send('Message body is not valid.');
+        }
+
+        //Then start processing
         getConnection().then((connection)=>{
             return getBasicProjectInfoByName(connection, req.params.projectName)
             .then((projectInfo)=>{

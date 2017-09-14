@@ -18,11 +18,11 @@
         },
         {
             "name": "lastUpdated",
-            "type": "DATE"
+            "type": "DATETIME"
         },
         {
             "name": "completed",
-            "type": "DATE"
+            "type": "DATETIME"
         },
         {
             "name": "episodeId",

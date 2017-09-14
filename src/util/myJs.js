@@ -3,12 +3,16 @@
 
 // I want a .forKeys on my objects
 // Callback should be (value, key, object)=>{} this is analagous to Array.forEach
-Object.prototype.forEach = function (callback){
-        if(this == null){throw new TypeError('this is null or not defined');}
-        Object.keys(this).forEach((key)=>{
-            callback(this[key], key, this);
-        });
-};
+//*/ make sure it's not enumerable
+Object.defineProperty(Object.prototype, 'forEach',{
+    enumerable: false,  //not seen by Object.keys(<obj>);
+    value: function (callback){
+            if(this == null){throw new TypeError('this is null or not defined');}
+            Object.keys(this).forEach((key)=>{
+                callback(this[key], key, this);
+            });
+    }
+});
 
 //I want a version of Promise.all for objects!
 Promise.props = (object)=>{

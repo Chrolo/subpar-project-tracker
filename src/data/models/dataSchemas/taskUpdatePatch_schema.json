@@ -1,0 +1,9 @@
+{
+    "id": "taskUpdatePatch_schema.json",
+    "type": "object",
+    "properties":{
+        "completed": { "type": "boolean"},
+        "newStaff": { "type": "string" }
+    },
+    "additionalProperties": false
+}
