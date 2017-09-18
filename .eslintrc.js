@@ -5,15 +5,14 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "rules": {
-        "accessor-pairs": "error",
-        "array-bracket-newline": "error",
+        "array-bracket-newline": [
+            "error",
+            { "multiline": true }
+        ],
         "array-bracket-spacing": "error",
         "array-callback-return": "error",
-        "array-element-newline": "error",
-        "arrow-body-style": "error",
-        "arrow-parens": "off",
-        "arrow-spacing": "off",
-        "block-scoped-var": "error",
+        //"array-element-newline": ["error",{ "multiline": true}],  //I want to enforce something like this. But more like "if array >5 then you have to, else it's optional. Also, if you newline any elements, you have to newline all"
+        "arrow-spacing": "error",
         "block-spacing": "error",
         "brace-style": [
             "error",
@@ -21,32 +20,45 @@ module.exports = {
         ],
         "callback-return": "error",
         "camelcase": "error",
-        "capitalized-comments": "off",
         "class-methods-use-this": "error",
         "comma-dangle": "error",
-        "comma-spacing": "off",
-        "comma-style": [
-            "error",
-            "last"
-        ],
-        "complexity": "error",
+        "comma-spacing": "error",
+        "comma-style": ["error","last"],
+        //"complexity": ["error", 5],   //breaks my switch statement, but I like the idea ;_;
         "computed-property-spacing": [
             "error",
             "never"
         ],
         "consistent-return": "error",
-        "consistent-this": "error",
         "curly": "error",
         "default-case": "error",
+        "indent": [
+            "error",
+            4,
+            {SwitchCase: 1}
+        ],
+        //"max-params": "warn", //Like the idea, may have to add es-lint-disables in a few places though
+        "no-multiple-empty-lines": ["error", {max:1, maxEOF:1}],
+        "no-var": "error",
+        "no-warning-comments": "warn",
+        "prefer-const": "error",
+        "prefer-promise-reject-errors": [
+            "error",
+            { "allowEmptyReject": true }
+        ],
+        "semi": "error",
+        "semi-spacing": "error",
+        "semi-style": ["error", "last"],
+        /*****************************************************/
+        // The line of "I've checked and approved this rule" //
+        /*****************************************************/
         "dot-location": [
             "error",
             "property"
         ],
         "dot-notation": [
             "error",
-            {
-                "allowKeywords": true
-            }
+            { "allowKeywords": true }
         ],
         "eol-last": "error",
         "eqeqeq": "error",
@@ -65,10 +77,7 @@ module.exports = {
         "guard-for-in": "error",
         "handle-callback-err": "error",
         "id-blacklist": "error",
-        "id-length": "error",
         "id-match": "error",
-        "indent": "off",
-        "indent-legacy": "off",
         "init-declarations": "error",
         "jsx-quotes": "error",
         "key-spacing": "error",
@@ -81,10 +90,8 @@ module.exports = {
         "max-len": "off",
         "max-lines": "error",
         "max-nested-callbacks": "error",
-        "max-params": "error",
         "max-statements": "off",
         "max-statements-per-line": "error",
-        "multiline-ternary": "error",
         "new-cap": "error",
         "new-parens": "error",
         "newline-after-var": "off",
@@ -108,9 +115,7 @@ module.exports = {
         "no-extend-native": "error",
         "no-extra-bind": "error",
         "no-extra-label": "error",
-        "no-extra-parens": "error",
         "no-floating-decimal": "error",
-        "no-implicit-coercion": "error",
         "no-implicit-globals": "error",
         "no-implied-eval": "error",
         "no-inline-comments": "off",
@@ -127,7 +132,6 @@ module.exports = {
         "no-multi-assign": "error",
         "no-multi-spaces": "off",
         "no-multi-str": "error",
-        "no-multiple-empty-lines": "error",
         "no-native-reassign": "error",
         "no-negated-condition": "off",
         "no-negated-in-lhs": "error",
@@ -140,7 +144,6 @@ module.exports = {
         "no-octal-escape": "error",
         "no-param-reassign": "off",
         "no-path-concat": "error",
-        "no-plusplus": "error",
         "no-process-env": "error",
         "no-process-exit": "off",
         "no-proto": "error",
@@ -161,7 +164,6 @@ module.exports = {
         "no-sync": "off",
         "no-tabs": "error",
         "no-template-curly-in-string": "error",
-        "no-ternary": "error",
         "no-throw-literal": "error",
         "no-trailing-spaces": "error",
         "no-undef-init": "error",
@@ -177,15 +179,11 @@ module.exports = {
         "no-useless-constructor": "error",
         "no-useless-rename": "error",
         "no-useless-return": "error",
-        "no-var": "error",
-        "no-void": "error",
-        "no-warning-comments": "error",
         "no-whitespace-before-property": "error",
         "no-with": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-newline": "off",
         "object-curly-spacing": "error",
-        "object-property-newline": "error",
         "object-shorthand": "error",
         "one-var": "off",
         "one-var-declaration-per-line": "error",
@@ -194,16 +192,8 @@ module.exports = {
         "padded-blocks": "off",
         "padding-line-between-statements": "error",
         "prefer-arrow-callback": "error",
-        "prefer-const": "off",
         "prefer-destructuring": "off",
         "prefer-numeric-literals": "error",
-        "prefer-promise-reject-errors": [
-            "error",
-            {
-                "allowEmptyReject": true
-            }
-        ],
-        "prefer-reflect": "error",
         "prefer-rest-params": "error",
         "prefer-spread": "error",
         "prefer-template": "error",
@@ -213,12 +203,6 @@ module.exports = {
         "require-await": "error",
         "require-jsdoc": "off",
         "rest-spread-spacing": "error",
-        "semi": "error",
-        "semi-spacing": "error",
-        "semi-style": [
-            "error",
-            "last"
-        ],
         "sort-imports": "error",
         "sort-keys": "off",
         "sort-vars": "error",
@@ -246,7 +230,6 @@ module.exports = {
             "error",
             "never"
         ],
-        "valid-jsdoc": "error",
         "vars-on-top": "error",
         "wrap-iife": "error",
         "wrap-regex": "error",

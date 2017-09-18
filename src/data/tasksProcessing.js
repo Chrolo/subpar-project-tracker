@@ -4,18 +4,17 @@ and returning when a task was complete.
 */
 
 function convertArrayOfTasksToCollection(arrayOfTasks){
-    return arrayOfTasks.reduce((acc, task)=>{
+    return arrayOfTasks.reduce((acc, task) => {
         acc[task.id] = task;
         return acc;
-    },{});
+    }, {});
 }
 
 function convertCollectionOfTasksToArray(collectionOfTasks) {
-    return Object.keys(collectionOfTasks).map((id)=>{
+    return Object.keys(collectionOfTasks).map((id) => {
         return collectionOfTasks[id];
     });
 }
-
 
 /**
     @param tasks a collection of tasks (as a collection object with TaskIds as keys)
@@ -27,17 +26,16 @@ function getCurrentTaskIds(tasks){
         tasks = convertArrayOfTasksToCollection(tasks);
     }
 
-
     const taskIds = Object.keys(tasks);
 
-    let currentTasks = [];
+    const currentTasks = [];
 
-    taskIds.forEach((id)=>{
+    taskIds.forEach((id) => {
         //If completed, expect to see non-null value.
         if(!tasks[id].completed) {
-            const isReadyToStart = tasks[id].dependsOn.reduce((acc,dependantId)=>{
-                return acc && (!!tasks[dependantId].completed);
-            },true);
+            const isReadyToStart = tasks[id].dependsOn.reduce((acc, dependantId) => {
+                return acc && !!tasks[dependantId].completed;
+            }, true);
 
             if(isReadyToStart){
                 currentTasks.push(id);
@@ -46,7 +44,6 @@ function getCurrentTaskIds(tasks){
     });
     return currentTasks;
 }
-
 
 module.exports = {
     convertArrayOfTasksToCollection,

@@ -1,25 +1,26 @@
 const {getTableSchema} = require('../models/dbDefLoader.js');
+const Logger = require('../../util/Logger.js');
 
 function createInsertForData(tableName, rows){
     //Check table is known to us:
     const tableSchema = getTableSchema(tableName);
 
     if(!tableSchema){
-        console.error(`[sql/util::createInsertForData] Table '${tableName}' is not specified in schemas.`);
+        Logger.error(`sql/util::createInsertForData`, `Table '${tableName}' is not specified in schemas.`);
         return null;
     }
 
     //get fields:
     const fields = tableSchema.fields;
-    const fieldString = `(${fields.map(field=>field.name).join()})`;
+    const fieldString = `(${fields.map(field => field.name).join()})`;
 
-    let values = [];
-    let stringSections = [];
-    const stringSection = '('+fields.map(()=>'?').join() + ')';
+    const values = [];
+    const stringSections = [];
+    const stringSection = `(${fields.map(() => '?').join()})`;
 
-    rows.forEach((row)=>{
-        fields.forEach(field =>{
-            values.push(prepareDataForInsert(row[field.name],field.type));
+    rows.forEach((row) => {
+        fields.forEach(field => {
+            values.push(prepareDataForInsert(row[field.name], field.type));
         });
         stringSections.push(stringSection);
     });
@@ -49,7 +50,7 @@ it does not perform escaping itself.
 */
 function prepareDataForInsert(data, dataType) {
     if(!dataType){
-        console.warn(`[sql/util::prepareDataForInsert] No data type given for value ${data}. Returning unchanged.`);
+        Logger.warn('[sql/util::prepareDataForInsert]', `No data type given for value ${data}. Returning unchanged.`);
         return data;
     }
 
@@ -58,46 +59,45 @@ function prepareDataForInsert(data, dataType) {
     }
 
     //Strip out any SQL length declarations
-    dataType = dataType.replace(/\(\d+\)/,'');
+    dataType = dataType.replace(/\(\d+\)/, '');
 
     switch(dataType){
         case 'TEXT':
         case 'VARCHAR':
-            return data+'';
-        break;
+            return `${data}`;
 
         case 'INT':
-            if(!Number.isFinite(data)){ return null; }
+            if(!Number.isFinite(data)){
+                return null;
+            }
             return Math.floor(data);
-        break;
 
         case 'DATE':
-            //TODO: Implement DATE type transform
             if(typeof data === 'string'){
                 //if string, check is correct format
                 const date = Date.parse(data);
                 if(date){
                     return new Date(data);
-                } else {
-                    console.error(`[sql/util::prepareDataForInsert] invalid string for date type: Expected 'yyyy-mm-dd', got '${data}'`);
-                    return null;
                 }
+                Logger.error('sql/util::prepareDataForInsert', `invalid string for date type: Expected 'yyyy-mm-dd', got '${data}'`);
+                return null;
+
             } else if (data instanceof Date) {
                 //if Date object, all is good
                 return data;
             }
-        break;
+            break;
 
         default:
-            console.warn(`[sql/util::prepareDataForInsert] Unknown dataType ${dataType}.`);
+            Logger.warn('sql/util::prepareDataForInsert', `Unknown dataType ${dataType}.`);
     }
     //unprocessed:
     return data;
 }
 
 function promiseQuery(connection, ...args){
-    return new Promise((resolve, reject)=>{
-        connection.query(...args, (err,res)=>{
+    return new Promise((resolve, reject) => {
+        connection.query(...args, (err, res) => {
             if(err){
                 reject(err);
             } else {
@@ -107,9 +107,9 @@ function promiseQuery(connection, ...args){
     });
 }
 
-
 module.exports = {
     createInsertForData,
+    createInsertStringForData,
     prepareDataForInsert,
     promiseQuery
 };
