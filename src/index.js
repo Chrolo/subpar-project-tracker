@@ -1,39 +1,38 @@
 const app = require('express')();
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
-const path = require('path');
 const argv = require('./argumentHandler.js');
+const Logger = require('./util/Logger.js');
 
 /* config */
 const config = require('./configFileLoader.js')(argv.config);
+Logger.setLogLevel(config.logger.level);
+Logger.debug('config', 'Starting with configuration of', config);
+
+//Setup the Logger:
 
 // App Startup:
 
-    //get database Connection pool ready:
-    const connectionPool  = mysql.createPool(config.mysql);
+//get database Connection pool ready:
+const connectionPool  = mysql.createPool(config.mysql);
 
 //verify connection and exit if failed:
-new Promise((res,rej)=>{
-    console.info(`Verifying connection to ${config.mysql.user}@${config.mysql.host}`);
+new Promise((res, rej) => {
+    Logger.info('mysqlConnection', `Verifying connection to ${config.mysql.user}@${config.mysql.host}`);
     connectionPool.query('SELECT 1 + 1 AS solution', (error) => {
         if (error) {
-            console.error('[Startup] Failed to verify SQL connection',
-            '\nwith parameters:', {
-                user: config.mysql.user,
-                host: config.mysql.host,
-                database: config.mysql.database
-
-            },
-            '\nError: ',error);
+            Logger.error('mysqlConnection', `Failed to verify SQL connection with parameters: ${
+                JSON.stringify({user: config.mysql.user, host: config.mysql.host, database: config.mysql.database})
+            }\nError: `, error);
             process.exit(1);
             rej();
         } else {
-            console.info('Database Connection successful.');
+            Logger.info('mysqlConnection', 'Database Connection successful.');
             res();
         }
     });
-}).then(()=>{
-    console.info('Creating server instance');
+}).then(() => {
+    Logger.info('ServerStartup', 'Creating server instance');
     //add some core express parts
     app.use(bodyParser.json());
 
@@ -42,16 +41,16 @@ new Promise((res,rej)=>{
     const ProjectsRouter = require('./apiRouting/projects.js')(connectionPool);
     const EpisodesRouter = require('./apiRouting/episodes.js')(connectionPool);
 
-    app.use('*',ApiKeyRouter);
-    app.use('/projects',ProjectsRouter);
+    app.use('*', ApiKeyRouter);
+    app.use('/projects', ProjectsRouter);
     app.use('/episodes', EpisodesRouter);
-    console.log('Routers applied');
+    Logger.info('ServerStartup', 'Routers applied');
 
-    console.info('Starting server');
-    app.listen(config.server.port, ()=>{
-        console.log(`[SubPar] API started on port ${config.server.port}`);
+    Logger.info('ServerStartup', 'Starting server');
+    app.listen(config.server.port, () => {
+        Logger.info('ServerStartup', `API started on port ${config.server.port}`);
     });
-}).catch((err)=>{
-    console.error('An Unhandled exception occured:\n', err);
+}).catch((err) => {
+    Logger.error('ServerStartup', 'An Unhandled exception occured:\n', err);
     process.exit(1);
 });
