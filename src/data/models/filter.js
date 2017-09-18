@@ -92,7 +92,8 @@ function filterObjectBySchemaIdAndAccess(object, schemaId, accessLevel){
         return returnedObject;
     } else {
         const message = `[Filter] Something went wrong filtering for ${schemaId}. Filter returned false.`;
-        throw new Error({message, object, returnedObject, errors:validate.errors});
+        console.error(message, validate.errors);
+        throw new Error(message);
     }
 }
 
