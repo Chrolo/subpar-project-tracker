@@ -6,7 +6,7 @@
         "fileName": {"type":"string", "description": "name of the file", "dataLevel": "public"},
         "ftpFilePath": {"type": "string", "description": "location of file on ftp", "dataLevel": "staff"},
         "version": {"type": "number", "description": "the version number of this file", "dataLevel": "public"},
-        "quality": {"type":"string", "enum":["720p", "1080p"], "dataLevel": "public"}
+        "quality": {"type": "string", "enum":["720p", "1080p"], "dataLevel": "public"}
     },
     "additionalProperties": false
 }

@@ -40,7 +40,7 @@ function setLogLevel(level){
 function formatLogMessage(tag, message, dataPresent){
     let timestamp = '';
     if(config.timestamp){
-        timestamp = new Date().toISOString();
+        timestamp = `${new Date().toISOString()} `;
     }
     return `${timestamp}[${tag}] ${message}${dataPresent? ': ':''}`.trim();
 }
@@ -63,19 +63,19 @@ function log(level, tag, message, ...data) {
     /*eslint-disable no-console*/
     switch(level) {
         case 'error':
-            console.error(string, ...data);
+            console.error(`[${level}]`, string, ...data);
             break;
         case 'warn':
-            console.warn(string, ...data);
+            console.warn(`[${level}]`, string, ...data);
             break;
         case 'info':
-            console.log(string, ...data);
+            console.log(`[${level}]`, string, ...data);
             break;
         case 'debug':
-            console.info(string, ...data);
+            console.info(`[${level}]`, string, ...data);
             break;
         case 'silly':
-            console.info(string, ...data);
+            console.info(`[${level}]`, string, ...data);
             break;
         default:
             throw new TypeError(`Failed to log at level ${level}. Message was: ${string} ${data}`);

@@ -68,7 +68,8 @@ module.exports = {
         "func-names": "error",
         "func-style": [
             "error",
-            "declaration"
+            "declaration",
+            { "allowArrowFunctions": true }
         ],
         "function-paren-newline": "off",
         "generator-star-spacing": "error",
@@ -184,7 +185,6 @@ module.exports = {
         "nonblock-statement-body-position": "error",
         "object-curly-newline": "off",
         "object-curly-spacing": "error",
-        "object-shorthand": "error",
         "one-var": "off",
         "one-var-declaration-per-line": "error",
         "operator-assignment": "error",

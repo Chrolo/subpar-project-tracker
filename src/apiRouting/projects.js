@@ -4,6 +4,7 @@ const {getListOfProjects, getFullProjectInfoByName, getBasicProjectInfoByName} =
 const {getEpisodeByNumberForProject} = require('../data/sql/episodes.js');
 const {getTasksByEpisodeIdAndTaskName, setTaskCompletion, setAssignedStaffMember} = require('../data/sql/tasks.js');
 const {isAllowedToUpdateTask} = require('../data/permissionProcessing.js');
+const {createProjectFromTemplate} = require('../data/projectProcessing.js');
 const filter = require('../data/models/filter.js');
 const validators = require('../data/models/validators.js');
 
@@ -47,7 +48,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                 if(result === null){
                     return res.status(404).send();
                 }
-                Logger.debug('GET projects/:projectName', `Got raw project data as:`, result);
+                Logger.debug('GET projects/:projectName', `Got raw project data as:`, JSON.stringify(result));
 
                 //filter the result by project_schema.json
                 result = filter(result, 'project_schema.json', req.apiPermission.permissions.dataViewLevel);
@@ -90,8 +91,10 @@ function ProjectsRouterFactory(mysqlConnectionPool){
     });
 
     ProjectsRouter.patch('/:projectName/episodes/:episodeNumber/tasks/:taskName', (req, res) => {
+        Logger.info('PATCH projects/:projectName/episodes/:episodeNumber/tasks/:taskName', `Saw request to ${req.url} with params: ${JSON.stringify(req.params)}`);
         //Check the body is appropriate:
         if(!validators['taskUpdatePatch_schema.json'](req.body)){
+            Logger.debug('ProjectRouter::PATCH project task', `Problems with taskUpdate body: ${JSON.stringify(validators['taskUpdatePatch_schema.json'].errors)}`);
             return res.status(400).send('Message body is not valid.');
         }
 
@@ -145,6 +148,31 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                 Logger.error('ProjectRouter::PATCH task', `Error when patching on ${req.url}\n`, err);
                 return res.status(500).send();
             });
+    });
+
+    ProjectsRouter.post('/', (req, res) => {
+        //Check authorisation:
+        if(!req.apiPermission.permissions.taskUpdate){
+            return res.status(403).send(`You don't have project creation priviledges`);
+        }
+
+        //Check schema
+        if(!validators['projectTemplate_schema.json'](req.body)){
+            Logger.debug('ProjectRouter::POST new Project', `Problems with project template: ${JSON.stringify(validators['projectTemplate_schema.json'].errors)}`);
+            return res.status(400).send('Message body is not valid.');
+        }
+
+        return getConnection().then((connection) => {
+            return createProjectFromTemplate(connection, req.body).then(() => {
+                return res.status(201).send(`Created Project ${req.body.name}`);
+            }).catch((err) => {
+                connection.release();
+                return Promise.reject(err);
+            });
+        }).catch((err) => {
+            Logger.error('ProjectRouter::POST new Project', `Error when attempting to create new project`, err);
+            return res.status(500).send();
+        });
     });
 
     return ProjectsRouter;

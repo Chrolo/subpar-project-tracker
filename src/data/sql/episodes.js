@@ -1,6 +1,6 @@
 const {getTasksByEpisodeId} = require('./tasks.js');
 const {getFilesForEpisode} = require('./episodeFiles.js');
-const {promiseQuery} = require('./utils.js');
+const {createInsertionObject, promiseQuery} = require('./utils.js');
 const Logger = require('../../util/Logger.js');
 
 function getEpisodesForProjectId(connection, projectId) {
@@ -37,7 +37,13 @@ function getEpisodeByNumberForProject(connection, episodeNumber, projectId){
         });
 }
 
+function insertNewEpisodes(connection, episodes){
+    const insertionData = createInsertionObject('episodes', episodes);
+    return promiseQuery(connection, insertionData.sql, insertionData.data);
+}
+
 module.exports = {
     getEpisodesForProjectId,
-    getEpisodeByNumberForProject
+    getEpisodeByNumberForProject,
+    insertNewEpisodes
 };

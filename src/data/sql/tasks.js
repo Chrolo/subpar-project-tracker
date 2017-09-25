@@ -1,5 +1,5 @@
 const Logger = require('../../util/Logger.js');
-const {promiseQuery} = require('./utils.js');
+const {createInsertionObject, promiseQuery} = require('./utils.js');
 
 function getTasksByEpisodeId(connection, episodeId){
     return promiseQuery(connection, 'SELECT * FROM tasks WHERE episodeId = ? ;', episodeId)
@@ -66,10 +66,75 @@ function getTasksByEpisodeIdAndTaskName(connection, episodeId, taskname) {
     });
 }
 
+function insertNewTasks(connection, tasks){
+    const insertionObject = createInsertionObject('tasks', tasks);
+    return promiseQuery(connection, insertionObject.sql, insertionObject.data);
+}
+
+function insertTaskDependencies(connection, thisTask, dependsOn){
+    const rows = dependsOn.map(preTaskId => {
+        return {taskId: thisTask, preTaskId};
+    });
+    const insertionObject = createInsertionObject('task_dependencies', rows);
+    return promiseQuery(connection, insertionObject.sql, insertionObject.data);
+}
+
+function insertTaskBatchFromTemplate(connection, taskBatch){
+    //create initial map for ids:
+    const idMap = taskBatch.reduce((acc, task) => {
+        acc[task.id] = null;
+        return acc;
+    }, {});
+
+    //Create tasks
+    const tasksRows = taskBatch.map((taskDefinition) => {
+        //take a copy:
+        const newTaskDefinition = JSON.parse(JSON.stringify(taskDefinition));
+        //remove uncessary data
+        delete newTaskDefinition.id;
+        delete newTaskDefinition.dependsOn;
+        return newTaskDefinition;
+    });
+
+    return insertNewTasks(connection, tasksRows)
+        .then((result) => {
+            return taskBatch.map((taskDefinition, index) => {
+                idMap[taskDefinition.id] = result.insertId+index;       // add new ID to the mapper.
+                taskDefinition.id = result.insertId+index;              // replace with new ID
+                return taskDefinition;                          //return the old definition, with new ID
+            });
+        }).then((results) => {
+            //sort out the dependencies
+            return results.map((taskDefinition) => {
+                if(taskDefinition.dependsOn){
+                    //If it has dependencies, map them
+                    taskDefinition.dependsOn = taskDefinition.dependsOn.map((oldId) => {
+                        if(typeof idMap[oldId] === 'undefined' || idMap[oldId] === null){
+                            Logger.warn('insertTaskBatchFromTemplate', `Couldn't find new ID for task ${oldId} in data ${JSON.stringify(idMap)}`);
+                        }
+                        return idMap[oldId];
+                    });
+                }
+                return taskDefinition;
+            });
+        }).then((results) => {
+            //Add all the dependencies
+            return Promise.all(results.map(taskDefinition => {
+                if(!taskDefinition.dependsOn || taskDefinition.dependsOn.length < 1){
+                    return Promise.resolve();
+                }
+                return insertTaskDependencies(connection, taskDefinition.id, taskDefinition.dependsOn);
+            }));
+        });
+}
+
 module.exports = {
     getTasksByEpisodeId,
     getTasksByEpisodeIdAndTaskName,
     getTasksByStaffName,
+    insertNewTasks,
+    insertTaskBatchFromTemplate,
+    insertTaskDependencies,
     setAssignedStaffMember,
     setTaskCompletion
 };

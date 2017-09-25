@@ -1,8 +1,9 @@
-const {promiseQuery} = require('./utils.js');
+const {promiseQuery, stripNullFieldsFromResults} = require('./utils.js');
 //const Logger = require('../../util/Logger.js');   //TODO re-enable logger
 
 function getFilesForEpisode(connection, episodeId){
-    return promiseQuery(connection, 'SELECT * FROM episode_files WHERE episodeId= ? ;', [episodeId]);
+    return promiseQuery(connection, 'SELECT * FROM episode_files WHERE episodeId= ? ;', [episodeId])
+        .then(stripNullFieldsFromResults);
 }
 
 /*  //TODO: finish 'insertEpisodeFile' function

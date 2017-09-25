@@ -76,13 +76,13 @@ describe('data/sql/utils', () => {
 
     });
 
-    describe('createInsertForData', () => {
+    describe('createInsertStringForData', () => {
         it('rejects unknown table names by returning null', () => {
             //silence the error:
             const tempErrorStorage = console.error; //eslint-disable-line no-console
             console.error = () => {};   //eslint-disable-line no-console, no-empty-function
             //test
-            expect(utils.createInsertForData('RandomTableName', [])).to.equal(null);
+            expect(utils.createInsertStringForData('RandomTableName', [])).to.equal(null);
             //re enable console.error
             console.error = tempErrorStorage;   //eslint-disable-line no-console
 
@@ -91,7 +91,7 @@ describe('data/sql/utils', () => {
             it('returns the string to be used for the fields in fieldString key', () => {
                 const expected = '(id,name,completed,projectType)';
                 //I don't like this as the db spec may change, but this test shouldn't have to
-                expect(utils.createInsertForData('projects', [{}]).fieldString).to.equal(expected);
+                expect(utils.createInsertStringForData('projects', [{}]).fieldString).to.equal(expected);
             });
 
             it('returns the values in the correct order for the prepared statement-like string', () => {
@@ -107,7 +107,7 @@ describe('data/sql/utils', () => {
                     null
                 ];
                 //I don't like this as the db spec may change, but this test shouldn't have to
-                const actual = utils.createInsertForData('projects', testData).values;
+                const actual = utils.createInsertStringForData('projects', testData).values;
 
                 expect(actual).to.deep.equal(expected);
             });
@@ -116,12 +116,111 @@ describe('data/sql/utils', () => {
                 const testData = [{}, {}, {}]; //we only care about row count
                 const expected = testData.length * 4; /*rows x fields in each row*/
                 //I don't like this as the db spec may change, but this test shouldn't have to
-                const data = utils.createInsertForData('projects', testData);
+                const data = utils.createInsertStringForData('projects', testData);
                 const actual = (data.string.match(/\?/g) || []).length;
 
                 expect(actual).to.equal(expected);
                 expect(data.values.length).to.equal(expected);
             });
+        });
+    });
+
+    describe('createInsertionObject', () => {
+        it('creates an expected sql string for given data', () => {
+            const testData = [{id: 1, name: 2}, {id: 5, completed: 7}];
+            const expected = {
+                sql: 'INSERT INTO projects (id,name,completed,projectType) VALUES (?,?,?,?),(?,?,?,?);',
+                data: [
+                    1,
+                    "2",
+                    null,
+                    null,
+                    5,
+                    null,
+                    7,
+                    null
+                ]
+            };
+
+            expect(utils.createInsertionObject('projects', testData)).to.deep.equal(expected);
+        });
+    });
+
+    describe('convertInsertResultToNewIdsArray', () => {
+        it('returns an array of Ids from inserted rows', () => {
+            const expected = [25, 26, 27, 28];
+            const actual = utils.convertInsertResultToNewIdsArray({
+                insertId: 25,
+                affectedRows: 4
+            });
+            expect(actual).to.deep.equal(expected);
+        });
+    });
+
+    describe('stripNullFieldsFromResults', () => {
+        it('removes row fields who \'s value is null', () => {
+            const input= [
+                {
+                    fansubbing: 'really',
+                    shows: {off: 'the', top: 3, attributes: ' of'},
+                    nerds: ['obession', 'creativity', null],
+                    extra: null
+                },
+                {
+                    mostly: null,
+                    fields: null,
+                    object: {with: null},
+                    array: ['with', null]
+                }
+            ];
+            const expected = [
+                {
+                    fansubbing: 'really',
+                    shows: {off: 'the', top: 3, attributes: ' of'},
+                    nerds: ['obession', 'creativity', null]
+                },
+                {
+                    object: {with: null},
+                    array: ['with', null]
+                }
+            ];
+            const actual = utils.stripNullFieldsFromResults(input);
+
+            expect(actual).to.deep.equal(expected);
+        });
+
+        it('keeps any fields specified in the `ignoredFields` array', () => {
+            const input= [
+                {
+                    fansubbing: 'really',
+                    shows: {off: 'the', top: 3, attributes: ' of'},
+                    nerds: ['obession', 'creativity', null],
+                    extra: null
+                },
+                {
+                    mostly: null,
+                    fields: null,
+                    object: {with: null},
+                    array: ['with', null]
+                }
+            ];
+            const igonoredFields = ['mostly', 'fields'];
+            const expected = [
+                {
+                    fansubbing: 'really',
+                    shows: {off: 'the', top: 3, attributes: ' of'},
+                    nerds: ['obession', 'creativity', null]
+                },
+                {
+                    mostly: null,
+                    fields: null,
+                    object: {with: null},
+                    array: ['with', null]
+                }
+            ];
+            const actual = utils.stripNullFieldsFromResults(input, igonoredFields);
+
+            expect(actual).to.deep.equal(expected);
         });
     });
 });

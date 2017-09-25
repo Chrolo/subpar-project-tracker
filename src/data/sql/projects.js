@@ -1,4 +1,4 @@
-const {promiseQuery} = require('./utils.js');
+const {createInsertionObject, promiseQuery, stripNullFieldsFromResults} = require('./utils.js');
 const Logger = require('../../util/Logger.js');
 const {getEpisodesForProjectId} = require('./episodes');
 
@@ -15,10 +15,8 @@ function getFullProjectInfoByName(connection, name){
 }
 
 function getBasicProjectInfoByName(connection, projectName){
-    //TODO: include aliases by using something like
-    //'SELECT * FROM projects LEFT JOIN project_aliases on projects.id = project_aliases.projectId WHERE projects.name = 'Nichijou' OR project_aliases.alias = 'Nichijou'; '
-    //note: this would require filtering results afterwards.
-    return promiseQuery(connection, 'SELECT * FROM projects WHERE name = ?', [projectName])
+    return promiseQuery(connection, 'SELECT projects.* FROM projects LEFT JOIN project_aliases on projects.id = project_aliases.projectId WHERE projects.name = ? OR project_aliases.alias = ? LIMIT 1;', [projectName, projectName])
+        .then(results => stripNullFieldsFromResults(results, ['completed']))
         .then((result) => {
             if(result.length > 1) {
                 return Promise.reject(new Error(`[getFullProjectInfoByName] expected 1 result for ${projectName}, got ${result.length}`));
@@ -63,8 +61,23 @@ function hydrateProjectData(connection, projectData){
         });
 }
 
+function insertNewProject(connection, projectDetails){
+    const insertionData = createInsertionObject('projects', projectDetails);
+    return promiseQuery(connection, insertionData.sql, insertionData.data);
+}
+
+function insertProjectAliases(connection, projectId, aliases){
+    const rows = aliases.map(alias => {
+        return {projectId, alias};
+    });
+    const insertionObject = createInsertionObject('project_aliases', rows);
+    return promiseQuery(connection, insertionObject.sql, insertionObject.data);
+}
+
 module.exports= {
     getListOfProjects,
     getBasicProjectInfoByName,
-    getFullProjectInfoByName
+    getFullProjectInfoByName,
+    insertNewProject,
+    insertProjectAliases
 };

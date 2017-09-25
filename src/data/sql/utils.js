@@ -1,7 +1,7 @@
 const {getTableSchema} = require('../models/dbDefLoader.js');
 const Logger = require('../../util/Logger.js');
 
-function createInsertForData(tableName, rows){
+function createInsertStringForData(tableName, rows){
     //Check table is known to us:
     const tableSchema = getTableSchema(tableName);
 
@@ -32,8 +32,12 @@ function createInsertForData(tableName, rows){
     };
 }
 
-function createInsertStringForData(tableName, rows){
-    const insertionData = createInsertForData(tableName, rows);
+function createInsertionObject(tableName, rows){
+    if(!(rows instanceof Array)){
+        rows = [rows];
+    }
+
+    const insertionData = createInsertStringForData(tableName, rows);
     if(!insertionData) {
         return null;
     }
@@ -73,6 +77,7 @@ function prepareDataForInsert(data, dataType) {
             return Math.floor(data);
 
         case 'DATE':
+        case 'DATETIME':
             if(typeof data === 'string'){
                 //if string, check is correct format
                 const date = Date.parse(data);
@@ -97,19 +102,38 @@ function prepareDataForInsert(data, dataType) {
 
 function promiseQuery(connection, ...args){
     return new Promise((resolve, reject) => {
-        connection.query(...args, (err, res) => {
+        connection.query(...args, (err, res, fields) => {
             if(err){
                 reject(err);
             } else {
-                resolve(res);
+                resolve(res, fields);
             }
         });
     });
 }
 
+function convertInsertResultToNewIdsArray(insertResult){
+    const initialInsertId = insertResult.insertId;
+    const insertedRows = insertResult.affectedRows;
+    return new Array(insertedRows).fill(null).map((v, i) => ((initialInsertId)+i));
+}
+
+function stripNullFieldsFromResults(results, ignoredFields = []){
+    return results.map((result) => {
+        return Object.keys(result).reduce((acc, key) => {
+            if(result[key] !== null || ignoredFields.includes(key)){
+                acc[key] = result[key];
+            }
+            return acc;
+        }, {});
+    });
+}
+
 module.exports = {
-    createInsertForData,
+    createInsertionObject,
     createInsertStringForData,
+    convertInsertResultToNewIdsArray,
     prepareDataForInsert,
-    promiseQuery
+    promiseQuery,
+    stripNullFieldsFromResults
 };

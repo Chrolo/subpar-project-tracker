@@ -6,10 +6,9 @@ const Logger = require('./util/Logger.js');
 
 /* config */
 const config = require('./configFileLoader.js')(argv.config);
+//Setup the Logger:
 Logger.setLogLevel(config.logger.level);
 Logger.debug('config', 'Starting with configuration of', config);
-
-//Setup the Logger:
 
 // App Startup:
 
@@ -48,7 +47,7 @@ new Promise((res, rej) => {
 
     Logger.info('ServerStartup', 'Starting server');
     app.listen(config.server.port, () => {
-        Logger.info('ServerStartup', `API started on port ${config.server.port}`);
+        Logger.info('ServerStartup', `API started on port :${config.server.port}`);
     });
 }).catch((err) => {
     Logger.error('ServerStartup', 'An Unhandled exception occured:\n', err);
