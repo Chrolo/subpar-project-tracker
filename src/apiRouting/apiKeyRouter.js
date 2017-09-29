@@ -25,8 +25,9 @@ function apiKeyRouterFactory(mysqlConnectionPool){
             //TODO: allow api token as query parameter too?
 
             if(!apiKey){
+                Logger.info('ApiKeyRouter', 'Access attempted without API key');
                 //TODO: Server config to allow default view permissions without API token?
-                res.status(401).send('Please remember to include your API token!');
+                return res.status(401).send('Please remember to include your API token!');
             }
 
             return getPermissionsForApiKey(connection, apiKey)
