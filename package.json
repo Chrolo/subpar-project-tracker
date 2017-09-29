@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "mocha -c src/**/*.spec.js",
-    "build:docs": "npm run build:databaseDef && npm run build:swagger",
+    "build:docs": "npm run build:databaseDef && npm run build:apiDoc",
+    "build:apiDoc": "node src/docs/apiDocGenerator.js",
     "build:databaseDef": "node src/docs/dbDefCompiler.js",
-    "build:swagger": "node src/docs/swaggerDocGenerator.js",
     "lint": "eslint ./src/**/*.js",
     "lint:fix": "eslint ./src/**/*.js --fix"
   },

@@ -3,11 +3,11 @@ const path = require('path');
 const fs = require('fs');
 
 //get the template
-const swaggerTemplate = require('./apiTemplate.swagger.json');
+const apiTemplate = require('./api-spec.template.json');
 //get a copy of the schemas:
 const schemas = JSON.parse(JSON.stringify(require('../data/models/dataSchemas/index.js').schemas));
 
-const OUTPUT_FILE = path.resolve(__dirname, '../../docs/api.swagger.json');
+const OUTPUT_FILE = path.resolve(__dirname, '../../docs/api-spec.json');
 
 //Go through each schema and change any $refs to point to #/definitions
 const definitions = Object.keys(schemas).reduce((acc, schemaName) => {
@@ -15,11 +15,11 @@ const definitions = Object.keys(schemas).reduce((acc, schemaName) => {
     return acc;
 }, {});
 
-//Add all schemas into the #/definitions section
-swaggerTemplate.definitions = Object.assign(swaggerTemplate.definitions, definitions);
+//Add all schemas into the #/components/schemas/ section
+apiTemplate.components.schemas = Object.assign({}, apiTemplate.components.schemas, definitions);
 
 //Output file
-const outputString = JSON.stringify(swaggerTemplate, null, '    ');
+const outputString = JSON.stringify(apiTemplate, null, '    ');
 fs.writeFileSync(OUTPUT_FILE, outputString);
 console.log(`API document written to ${OUTPUT_FILE}`); //eslint-disable-line no-console
 
@@ -34,7 +34,7 @@ function replaceRefKeys (object) {
     }
     return Object.keys(object).reduce((acc, key) => {
         if(key === '$ref') {
-            acc[key] = `#/definitions/${object[key]}`;
+            acc[key] = `#/components/schemas/${object[key]}`;
         } else {
             acc[key] = replaceRefKeys(object[key]);
         }
@@ -43,7 +43,7 @@ function replaceRefKeys (object) {
 }
 
 function removeNonCompliantSchemaParts(object){
-    //Basically I'm forced to use swagger v2 instead of OpenApi v3
+    // Turns out OpenApi Schemas is based on JSON Schema v00 ;_;
     const fieldsToRemove = ['$id', 'id', 'dataLevel'];
     // And swagger v2 doesn't like some of the cool JSON Schema stuff i've been doing.
     if(typeof object !== 'object'){
