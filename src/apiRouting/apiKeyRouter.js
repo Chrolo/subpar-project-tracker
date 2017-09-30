@@ -37,11 +37,13 @@ function apiKeyRouterFactory(mysqlConnectionPool){
                     //if no permissions have been found for that API token:
                     if(!result){
                         //TODO: Server config to allow default view permissions without API token?
+                        Logger.debug('ApiKeyRouter', `Couldn't find entry for '${apiKey}'`);
                         return res.status(403).send('Token not recognised');
                     }
 
                     //Attach the permissions data
                     req.apiPermission = result;
+                    Logger.silly('ApiKeyRouter', `Adding the permissions`, JSON.stringify(result));
 
                     return next();
                 }).catch((err) => {
@@ -51,7 +53,7 @@ function apiKeyRouterFactory(mysqlConnectionPool){
         })
             .catch((err) => {
                 Logger.error(`ApiKeyRouter`, `Error when determining Api permissions for '${req.headers['x-api-key']}'\n`, err);
-                res.status(500).send();
+                return res.status(500).send();
             });
     });
 

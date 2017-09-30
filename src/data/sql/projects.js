@@ -9,7 +9,7 @@ function getListOfProjects(connection){
 function getFullProjectInfoByName(connection, name){
     return getBasicProjectInfoByName(connection, name)
         .then((projectInfo) => {
-            Logger.debug('getFullProjectInfoByName', 'Retreived basic info', projectInfo);
+            Logger.silly('getFullProjectInfoByName', 'Retreived basic info', projectInfo);
             return hydrateProjectData(connection, projectInfo);
         });
 }

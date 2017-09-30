@@ -43,12 +43,11 @@ function ProjectsRouterFactory(mysqlConnectionPool){
     ProjectsRouter.get('/:projectName', (req, res) => {
         Logger.info('GET projects/:projectName', 'Saw project request with params:', req.params);
         getConnection().then((connection) => {
-            Logger.debug('GET projects/:projectName', 'Got connection, querying database:');
             return getFullProjectInfoByName(connection, req.params.projectName).then((result) => {
                 if(result === null){
                     return res.status(404).send();
                 }
-                Logger.debug('GET projects/:projectName', `Got raw project data as:`, JSON.stringify(result));
+                Logger.silly('GET projects/:projectName', `Got raw project data as:`, JSON.stringify(result));
 
                 //filter the result by project_schema.json
                 result = filter(result, 'project_schema.json', req.apiPermission.permissions.dataViewLevel);
@@ -69,7 +68,6 @@ function ProjectsRouterFactory(mysqlConnectionPool){
     ProjectsRouter.get('/:projectName/episodes/:episodeNumber', (req, res) => {
         Logger.info('[ProjectsRouter/:projectName/episodes/:episodeNumber]', `saw request to ${req.url}`, req.params);
         getConnection().then((connection) => {
-
             return getBasicProjectInfoByName(connection, req.params.projectName)
                 .then((projectInfo) => {
                     return getEpisodeByNumberForProject(connection, req.params.episodeNumber, projectInfo.id);
@@ -158,6 +156,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
 
         //Check schema
         if(!validators['projectTemplate_schema.json'](req.body)){
+            Logger.info('ProjectRouter::POST new Project', `The project template failed to validate`);
             Logger.debug('ProjectRouter::POST new Project', `Problems with project template: ${JSON.stringify(validators['projectTemplate_schema.json'].errors)}`);
             return res.status(400).send('Message body is not valid.');
         }

@@ -4,8 +4,8 @@ const {createInsertionObject, promiseQuery} = require('./utils.js');
 function getTasksByEpisodeId(connection, episodeId){
     return promiseQuery(connection, 'SELECT * FROM tasks WHERE episodeId = ? ;', episodeId)
         .then((result) => {
-            Logger.info('getTasksByEpisodeId', `Got ${result.length} results from query.`);
-            Logger.debug('getTasksByEpisodeId', `Query for episodeId#${episodeId} gave results:`, result);
+            Logger.debug('getTasksByEpisodeId', `Got ${result.length} results from query for Episode ${episodeId}`);
+            Logger.silly('getTasksByEpisodeId', `Query for episodeId#${episodeId} gave results:`, result);
             return Promise.all(result.map((task) => {
                 return hydrateTaskData(connection, task);
             }));

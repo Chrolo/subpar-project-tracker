@@ -10,7 +10,7 @@ function getPermissionsForId(connection, id) {
     }
     return promiseQuery(connection, 'SELECT * FROM permissions WHERE id = ?;', [id]).then((results) => {
         if(results.length !== 1){
-            Logger.error(`Permissions Error`, `Expected one frow for permissionsId ${id}, got ${results.length}`);
+            Logger.error(`Permissions Error`, `Expected one row for permissionsId ${id}, got ${results.length}`);
             return {};
         }
         delete results[0].id;   //useless tag now

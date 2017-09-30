@@ -36,10 +36,12 @@ new Promise((res, rej) => {
     app.use(bodyParser.json());
 
     //Import and assign routers:
+    const RequestLogger = require('./apiRouting/requestLogger.js');
     const ApiKeyRouter = require('./apiRouting/apiKeyRouter.js')(connectionPool);
     const ProjectsRouter = require('./apiRouting/projects.js')(connectionPool);
     const EpisodesRouter = require('./apiRouting/episodes.js')(connectionPool);
 
+    app.use('*', RequestLogger);
     app.use('*', ApiKeyRouter);
     app.use('/projects', ProjectsRouter);
     app.use('/episodes', EpisodesRouter);
