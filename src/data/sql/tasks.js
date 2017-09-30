@@ -38,7 +38,7 @@ function getTaskPreRequisiteTasks(connection, taskId) {
 
 function setTaskCompletion(connection, taskId, status=true) {
     if(!Number.isFinite(taskId)){
-        return Promise.reject(new Error(`Task Id must be an integer number, got ${taskId} : ${typeof taskId}`));
+        return Promise.reject(new TypeError(`Task Id must be an integer number, got ${taskId} : ${typeof taskId}`));
     }
 
     const completed= status ? 'NOW()' : 'NULL';
@@ -128,7 +128,46 @@ function insertTaskBatchFromTemplate(connection, taskBatch){
         });
 }
 
+function deleteTaskDependenciesForTaskId(connection, taskId){
+    return promiseQuery(connection, 'DELETE FROM task_dependencies WHERE taskId = ? OR preTaskId = ?;', [taskId, taskId]);
+}
+
+function deleteTaskById(connection, taskId){
+    if(!Number.isFinite(taskId)){
+        return Promise.reject(new TypeError(`Task Id must be an integer number, got ${taskId} : ${typeof taskId}`));
+    }
+
+    return deleteTaskDependenciesForTaskId(connection, taskId).then((taskDependenciesDeletes) => {
+        Logger.debug('deleteTaskDependenciesForTaskId', `Deleted ${taskDependenciesDeletes.affectedRows} asociated with ${taskId}`);
+        return promiseQuery(connection, 'DELETE FROM tasks WHERE episodeId = ? ;', taskId).then((taskDelete) => {
+            if(taskDelete.affectedRows !== 1) {
+                Logger.error('deleteTaskDependenciesForTaskId', `Expected to delete one row for Id${taskId}, instead saw ${taskDelete.affectedRows} affectedRows`);
+            }
+        });
+    });
+}
+
+function deleteTasksForEpisodeId(connection, episodeId) {
+    //First we need to know all the ids to delete, as we need to remove the task_dependencies too
+    return promiseQuery(connection, 'SELECT id FROM tasks WHERE episodeId = ? ;', episodeId)
+        .then(rows => rows.map(row => row.id))
+        .then((taskIds) => {
+            return Promise.all(
+                taskIds.map(taskId => deleteTaskDependenciesForTaskId(connection, taskId))
+            );
+        }).then(() => {
+            return promiseQuery(connection, 'DELETE FROM tasks WHERE episodeId = ? ;', episodeId)
+                .then((result) => {
+                    Logger.debug('deleteTasksForEpisodeId', `Deleted ${result.affectedRows} tasks related to Episode ${episodeId}`);
+                });
+        });
+
+}
+
 module.exports = {
+    deleteTaskById,
+    deleteTasksForEpisodeId,
+    deleteTaskDependenciesForTaskId,
     getTasksByEpisodeId,
     getTasksByEpisodeIdAndTaskName,
     getTasksByStaffName,

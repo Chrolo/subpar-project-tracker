@@ -1,7 +1,7 @@
 const {promiseQuery} = require('./utils.js');
 const uuidv4 = require('uuid/v4');
 const Logger = require('../../util/Logger.js');
-const {getPermissionsForId, insertNewPermissionsRule} = require('./permissions.js');
+const {deletePermissions, getPermissionsForId, insertNewPermissionsRule} = require('./permissions.js');
 const {createInsertionObject} = require('./utils.js');
 
 const apiKeyCache = {
@@ -79,7 +79,25 @@ function getApiKeyDataFromCache(apiKey){
     });
 }
 
+function deleteApiToken(connection, apiKey){
+    //Verify the token exists (and get the permissions linked to it)
+    return promiseQuery(connection, `SELECT * FROM api_keys WHERE apiKey=?`, [apiKey])
+        .then((results) => {
+            if(results.length !== 1){
+                return Promise.reject(new Error(`Expected 1 row to delete matching ${apiKey}. Found ${results.length}`));
+            }
+            const permissionsId = results[0].permissionId;
+            const apiKeyId=results[0].id;
+            return Promise.all([
+                promiseQuery(connection, `DELETE FROM api_keys WHERE id = ?;`, [apiKeyId]),
+                deletePermissions(connection, permissionsId)
+            ]);
+
+        });
+}
+
 module.exports= {
     createNewApiKey,
+    deleteApiToken,
     getPermissionsForApiKey
 };

@@ -1,4 +1,4 @@
-const {getTasksByEpisodeId} = require('./tasks.js');
+const {deleteTasksForEpisodeId, getTasksByEpisodeId} = require('./tasks.js');
 const {getFilesForEpisode} = require('./episodeFiles.js');
 const {createInsertionObject, promiseQuery} = require('./utils.js');
 const Logger = require('../../util/Logger.js');
@@ -42,7 +42,18 @@ function insertNewEpisodes(connection, episodes){
     return promiseQuery(connection, insertionData.sql, insertionData.data);
 }
 
+function deleteEpisode(connection, episodeId){
+    if(!Number.isFinite(episodeId)){
+        throw new TypeError(`PermissionsId must be integer, saw ${episodeId}`);
+    }
+    return Promise.all([
+        promiseQuery(connection, `DELETE FROM episodes WHERE id = ?;`, [episodeId]),
+        deleteTasksForEpisodeId(connection, episodeId)
+    ]);
+}
+
 module.exports = {
+    deleteEpisode,
     getEpisodesForProjectId,
     getEpisodeByNumberForProject,
     insertNewEpisodes

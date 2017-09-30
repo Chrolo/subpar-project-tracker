@@ -1,7 +1,7 @@
 /*globals describe it*/
 const proxyquire = require('proxyquire');
 const expect = require('chai').expect;
-//const {inspect} = require('util');
+require('../../util/Logger.js').setLogLevel('warn');    //Stop debug messages
 
 describe('data/sql/tasks', () => {
     describe('insertTaskBatchFromTemplate', () => {
@@ -153,6 +153,44 @@ describe('data/sql/tasks', () => {
 
                 //Finished assertions
                 done();
+            }).catch(done);
+        });
+    });
+
+    describe('deleteTasksForEpisodeId', () => {
+        //setup the promiseQuery stubs:
+        const promiseQuerySpy = (() => {
+            const calledWith = [];
+            const stubbedMysqlResults = [[{id: 3}]];    //It first does a SELECT for ids related to episodeId
+
+            return {
+                calledWith,
+                func: (...args) => {
+                    calledWith.push(args);
+                    return Promise.resolve((calledWith.length - 1 < stubbedMysqlResults.length) ? stubbedMysqlResults[calledWith.length - 1] : true);
+                }
+            };
+        })();
+        const tasks = proxyquire('./tasks.js', {
+            './utils.js': {
+                promiseQuery: promiseQuerySpy.func
+            }
+        });
+
+        it('sends a DELETE action for all tasks related to the given id', (done) => {
+            const testEpisodeId = 5;
+            tasks.deleteTasksForEpisodeId({}, testEpisodeId).then(() => {
+                //Check there was a call to DELETE on tasks
+                const deletesOnTasks = promiseQuerySpy.calledWith.filter((call) => {
+                    const matches = call[1].match(/DELETE FROM tasks/);
+                    return matches && matches.length;
+                });
+                expect(deletesOnTasks.length, 'Expected 1 action to DELETE from tasks').to.equal(1);
+                const deleteTask = deletesOnTasks[0];
+                expect(deleteTask[1].match(/episodeId\s+=\s+\?/).length, `Expected to see a clause to match episodeId`).to.equal(1);
+                expect(deleteTask[2], `Expected deletion to call against episodeId ${testEpisodeId}`).to.equal(testEpisodeId);
+                done();
+
             }).catch(done);
         });
     });

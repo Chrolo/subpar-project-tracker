@@ -29,6 +29,13 @@ function insertNewPermissionsRule(connection, permissions){
     return promiseQuery(connection, insertionObject.sql, insertionObject.data);
 }
 
+function deletePermissions(connection, id){
+    if(!Number.isFinite(id)){
+        throw new TypeError(`PermissionsId must be integer, saw ${id}`);
+    }
+    return promiseQuery(connection, `DELETE FROM permissions WHERE id = ?;`, [id]);
+}
+
 function convertSQLPermissionsToEnums(sqlResultObject){
     return Object.map(sqlResultObject, (val, key) => {
         return convertSqlToEnum(key, val);
@@ -96,6 +103,7 @@ const ENUMS = Object.map(FIELD_DATA, (val) => {
 module.exports = {
     convertSqlToEnum,
     convertEnumToSql,
+    deletePermissions,
     ENUMS,
     getPermissionsForId,
     insertNewPermissionsRule
