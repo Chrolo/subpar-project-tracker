@@ -232,7 +232,7 @@
                 },
                 {
                     "name": "episodeId",
-                    "type": "int",
+                    "type": "INT",
                     "foreignKey": {
                         "table": "episodes",
                         "column": "id"

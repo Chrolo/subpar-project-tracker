@@ -8,6 +8,7 @@ let databaseSchema = {};
 function refreshSchemas() {
     const filesFound= fs.readdirSync(TABLES_FOLDER_PATH);
     if(filesFound.length > 0){
+        //Define the database:
         databaseSchema = {
             name: 'subpar', //default database name
             tables: filesFound.map((tableDefFile) => {

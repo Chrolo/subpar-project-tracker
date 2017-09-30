@@ -1,0 +1,247 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"description": "The API for viewing or editting projects managed by the SubPar-project tracker",
+		"version": "0.0.1",
+		"title": "SubPar-project tracker",
+		"contact": {
+			"name": "Chrolo @ DameDesuYo",
+			"url": "http://github.com/Chrolo/subpar-project-tracker"
+		}
+	},
+    "security": [
+        {
+            "api_key":[]
+        }
+    ],
+	"paths": {
+		"/projects": {
+			"get": {
+				"summary": "get a list of project names",
+				"description": "get an array of project names currently on the system. Can (will later) include url parameters search to filter results",
+				"parameters": [
+                    {
+    					"name": "name",
+    					"in": "query",
+    					"description": "The name to search by. Can be shorthand",
+                        "schema": {
+                            "type": "string"
+                        }
+    				},
+                    {
+    					"name": "projectType",
+    					"in": "query",
+    					"description": "The type of project to filter by",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["TV", "BD"]
+                        }
+    				},
+                    {
+    					"name": "year",
+    					"in": "query",
+    					"description": "The year it was released (based on season it began airing / was release on sale)",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+				"responses": {
+					"200": {
+						"description": "List of project names, filtered by any applied queries",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+        							"type": "array",
+        							"items": {
+        								"type": "string"
+        							}
+        						}
+                            }
+                        }
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+				}
+			},
+			"post": {
+				"summary": "Add a new project",
+				"description": "Add a new project to the database.",
+                "requestBody": {
+					"description": "changes to the task",
+                    "content":{
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/projectTemplate_schema.json"
+                            }
+                        }
+                    },
+                    "required": true
+				},
+				"responses": {
+					"200": {
+						"description": "Project was added to database",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+        							"type": "array",
+        							"items": {
+        								"type": "string"
+        							}
+        						}
+                            }
+                        }
+					},
+					"403": {
+						"description": "You don't have permission to add new projects to the database"
+					}
+				}
+			}
+		},
+		"/projects/{projectName}": {
+            "parameters": [
+                {
+                    "name": "projectName",
+                    "in": "path",
+                    "description": "The project name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                }
+            ],
+			"get": {
+				"summary": "get project details",
+				"description": "get project details.",
+				"responses": {
+					"200": {
+						"description": "project details",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/components/schemas/project_schema.json"
+                                }
+                            }
+                        }
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+				}
+			}
+		},
+		"/projects/{projectName}/episodes/{episodeNumber}": {
+            "parameters": [
+                {
+                    "name": "projectName",
+                    "in": "path",
+                    "description": "The project name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                },
+                {
+                    "name": "episodeNumber",
+                    "in": "path",
+                    "description": "The number of the episode",
+                    "schema": {
+                        "type": "integer"
+                    },
+                    "required": true
+                }
+            ],
+			"get": {
+				"summary": "Get information about an episode of a project",
+				"description": "Get a JSON object representing information about that project.",
+				"responses": {
+					"200": {
+						"description": "episode information",
+                        "content":{
+                            "application/json": {
+        						"schema": {
+        							"$ref": "#/components/schemas/episodeFile_schema.json"
+        						}
+                            }
+                        }
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    },
+					"404": {
+						"description": "Project not found"
+					}
+				}
+			}
+		},
+		"/projects/{projectName}/episodes/{episodeNumber}/tasks/{taskName}": {
+			"patch": {
+				"summary": "update the status of a task",
+				"description": "edit the status of a task",
+                "parameters": [
+                    {
+    					"name": "projectName",
+    					"in": "path",
+    					"description": "The project name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+    				},
+                    {
+    					"name": "episodeNumber",
+    					"in": "path",
+    					"description": "The number of the episode",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
+    				},
+                    {
+    					"name": "taskName",
+    					"in": "path",
+    					"description": "The name of the task",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+				"requestBody": {
+					"description": "changes to the task",
+                    "content":{
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/taskUpdatePatch_schema.json"
+                            }
+                        }
+                    },
+                    "required": true
+				},
+				"responses": {
+					"200": {
+						"description": "task status updated successfully"
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+				}
+			}
+		}
+	},
+    "components": {
+        "securitySchemes": {
+            "api_key": {
+                "type":"apiKey",
+                "name":"x-api-key",
+                "in":"header"
+            }
+        },
+        "responses": {
+            "forbidden": {
+                "description": "OPTION forbidden."
+            }
+        }
+    }
+}
