@@ -1,0 +1,31 @@
+{
+    "$id": "apiKey_schema.json",
+    "type": "object",
+    "description": "A set of permissions for this API",
+    "properties": {
+        "description": {
+            "type": "string",
+            "description": "A description of this API key and why it was issued",
+            "dataLevel": "admin"
+        },
+        "email": {
+            "type":"string",
+            "format": "email",
+            "description": "email address of person assigned to this key.",
+            "dataLevel": "admin"
+        },
+        "staffName": {
+            "type":"string",
+            "description": "Staff member assigned to this key.",
+            "dataLevel": "admin"
+        },
+        "permissions":{
+            "$ref": "permissions_schema.json"
+        }
+    },
+    "required":[
+        "email",
+        "permissions"
+    ],
+    "additionalProperties": false
+}

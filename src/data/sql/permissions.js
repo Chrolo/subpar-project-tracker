@@ -1,4 +1,4 @@
-const {promiseQuery} = require('./utils.js');
+const {createInsertionObject, promiseQuery} = require('./utils.js');
 const Logger = require('../../util/Logger.js');
 
 //---------------------------------------------
@@ -16,6 +16,11 @@ function getPermissionsForId(connection, id) {
         delete results[0].id;   //useless tag now
         return convertSQLPermissionsToEnums(results[0]);
     });
+}
+
+function insertNewPermissionsRule(connection, permissions){
+    const insertionObject = createInsertionObject('permissions', [permissions]);
+    return promiseQuery(connection, insertionObject.sql, insertionObject.data);
 }
 
 function convertSQLPermissionsToEnums(sqlResultObject){
@@ -40,8 +45,8 @@ const OWNERSHIPS = {
     ALL: {js: 'all', sql: 2}
 };
 const BOOLEAN = {
-    TRUE: {js: true, sql: 0},
-    FALSE: {js: false, sql: 1}
+    FALSE: {js: false, sql: 0},
+    TRUE: {js: true, sql: 1}
 };
 
 const FIELD_DATA = {
@@ -90,5 +95,6 @@ const ENUMS = Object.keys(FIELD_DATA).reduce((acc, field) => {
 module.exports = {
     ENUMS,
     convertDataType,
-    getPermissionsForId
+    getPermissionsForId,
+    insertNewPermissionsRule
 };

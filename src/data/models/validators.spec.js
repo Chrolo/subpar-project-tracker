@@ -15,6 +15,8 @@ describe('data/models/validators', () => {
         const expectedSchemas = [
             'episodeFile_schema.json',
             'episode_schema.json',
+            'permissions_schema.json',
+            'postApiKey_schema.json',
             'project_schema.json',
             'projectTemplate_schema.json',
             'task_schema.json',

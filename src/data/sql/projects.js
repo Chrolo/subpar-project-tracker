@@ -3,7 +3,7 @@ const Logger = require('../../util/Logger.js');
 const {getEpisodesForProjectId} = require('./episodes');
 
 function getListOfProjects(connection){
-    return promiseQuery(connection, 'SELECT name FROM projects;');
+    return promiseQuery(connection, 'SELECT name FROM projects;').then(results => results.map(row => row.name));
 }
 
 function getFullProjectInfoByName(connection, name){

@@ -1,8 +1,8 @@
 const {promiseQuery} = require('./utils.js');
 const uuidv4 = require('uuid/v4');
 const Logger = require('../../util/Logger.js');
-const {getPermissionsForId} = require('./permissions.js');
-const {createInsertForData} = require('./utils.js');
+const {getPermissionsForId, insertNewPermissionsRule} = require('./permissions.js');
+const {createInsertionObject} = require('./utils.js');
 
 const apiKeyCache = {
     updated: 0,
@@ -30,10 +30,21 @@ function createNewApiKey(connection, options){
     //Create new key:
     options.apiKey = uuidv4();
 
-    const insertionData = createInsertForData('api_keys', [options]);
-    return promiseQuery(connection, insertionData.string, insertionData.values)
-        .then((result, fields) => {
-            Logger.info('ApiTokenGenerate', `results were:\n, ${JSON.stringify(result)}\n---\n${JSON.stringify(fields)}`);
+    return insertNewPermissionsRule(connection, options.permissions)
+        .then((results) => {
+            if(typeof results.insertId === 'undefined'){
+                throw new Error(`insertNewPermissionsRule returned no insertId. Saw: ${results}`);
+            }
+
+            //Add the permissions Id
+            options.permissionId = results.insertId;
+            const insertionData = createInsertionObject('api_keys', [options]);
+            return promiseQuery(connection, insertionData.sql, insertionData.data)
+                .then(() => {
+                    Logger.info('ApiTokenGenerate', `Added new APIkey '${options.apiKey}'`);
+                    Logger.debug('ApiTokenGenerate', `new APIkey object is`, JSON.stringify(options));
+                    return options.apiKey;
+                });
         });
 }
 

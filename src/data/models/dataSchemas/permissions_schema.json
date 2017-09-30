@@ -1,0 +1,34 @@
+{
+    "$id": "permissions_schema.json",
+    "type": "object",
+    "description": "A set of permissions for this API",
+    "properties": {
+        "dataViewLevel": {
+            "$ref": "#/permissionTypes/dataLevels"
+        },
+        "taskUpdate": {
+            "$ref": "#/permissionTypes/ownerships"
+        },
+        "projectDetailUpdate": {
+            "$ref": "#/permissionTypes/ownerships"
+        },
+        "projectCreation": {
+            "$ref": "#/permissionTypes/ownerships"
+        },
+        "apiTokenCreate": {
+            "type": "boolean"
+        },
+        "apiTokenRevoke": {
+            "type": "boolean"
+        }
+    },
+    "additionalProperties": false,
+    "permissionTypes": {
+        "dataLevels":{
+            "enum": ["public", "staff", "admin", "debug"]
+        },
+        "ownerships":{
+            "enum": ["own", "all", null]
+        }
+    }
+}

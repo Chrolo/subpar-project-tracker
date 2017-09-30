@@ -1,5 +1,6 @@
 const ApiKeyRouter = require('express').Router();   //eslint-disable-line new-cap
-const {getPermissionsForApiKey} = require('../data/sql/api_keys.js');
+const {createNewApiKey} = require('../data/sql/api_keys.js');
+const validators = require('../data/models/validators.js');
 const Logger = require('../util/Logger.js');
 
 function apiKeyRouterFactory(mysqlConnectionPool){
@@ -17,44 +18,32 @@ function apiKeyRouterFactory(mysqlConnectionPool){
         });
     }
 
-    ApiKeyRouter.all('*', (req, res, next) => {
-        //Check permissions and attach to request object.
-        getConnection().then((connection) => {
-            //Get the API token:
-            const apiKey = req.headers['x-api-key'];
-            //TODO: allow api token as query parameter too?
+    ApiKeyRouter.post('/', (req, res) => {
+        //Check authorisation:
+        if(!req.apiPermission.permissions.apiTokenCreate){
+            Logger.info('ApiKeyRouter::POST apiToken Creation', `un-authed attempt to create new api token.`, JSON.stringify({
+                apiKey: req.apiPermission.apiKey,
+                hostName: req.hostname
+            }));
+            return res.status(403).send(`You don't have apiToken creation priviledges`);
+        }
 
-            if(!apiKey){
-                Logger.info('ApiKeyRouter', 'Access attempted without API key');
-                //TODO: Server config to allow default view permissions without API token?
-                return res.status(401).send('Please remember to include your API token!');
-            }
+        //Check the body
+        if(!validators['postApiKey_schema.json'](req.body)){
+            Logger.debug('ApiKeyRouter::POST create new API key', `Problems with body: ${JSON.stringify(validators['postApiKey_schema.json'].errors)}`);
+            return res.status(400).send('Message body is not valid.');
+        }
 
-            return getPermissionsForApiKey(connection, apiKey)
-                .then((result) => {
-                    //release the connection
-                    connection.release();
-                    //if no permissions have been found for that API token:
-                    if(!result){
-                        //TODO: Server config to allow default view permissions without API token?
-                        Logger.debug('ApiKeyRouter', `Couldn't find entry for '${apiKey}'`);
-                        return res.status(403).send('Token not recognised');
-                    }
+        //TODO: check they're not trying for higher permissions than what they have?
 
-                    //Attach the permissions data
-                    req.apiPermission = result;
-                    Logger.silly('ApiKeyRouter', `Adding the permissions`, JSON.stringify(result));
-
-                    return next();
-                }).catch((err) => {
-                    connection.release();
-                    return Promise.reject(err);
-                });
-        })
-            .catch((err) => {
-                Logger.error(`ApiKeyRouter`, `Error when determining Api permissions for '${req.headers['x-api-key']}'\n`, err);
-                return res.status(500).send();
+        return getConnection().then((connection) => {
+            return createNewApiKey(connection, req.body).then((newApiKey) => {
+                return res.status(201).send(`Created new API key ${newApiKey}`);
             });
+        }).catch((err) => {
+            Logger.error(`ApiKeyRouter`, `Error Adding new API key`, err);
+            return res.status(500).send();
+        });
     });
 
     return ApiKeyRouter;

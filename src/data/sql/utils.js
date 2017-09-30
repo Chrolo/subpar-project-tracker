@@ -68,6 +68,7 @@ function prepareDataForInsert(data, dataType) {
     switch(dataType){
         case 'TEXT':
         case 'VARCHAR':
+        case 'CHAR':
             return `${data}`;
 
         case 'INT':

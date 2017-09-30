@@ -58,6 +58,22 @@ __Example config__
 }
 ```
 
+### `logger`
+| key |default value | description |
+| - | - | - |
+| level | `info` | The log level. Available levels (in order from least to most verbose) are `"error", "warn",  "info", "debug", "silly"` |
+
+
+__Example config__
+```json
+{
+    "logger":{
+        "level": "debug"
+    }
+}
+```
+
+
 ## Permissions
 The following permissions can be set against any API token created:
 

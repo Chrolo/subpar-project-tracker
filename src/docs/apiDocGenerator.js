@@ -24,19 +24,28 @@ fs.writeFileSync(OUTPUT_FILE, outputString);
 console.log(`API document written to ${OUTPUT_FILE}`); //eslint-disable-line no-console
 
 // Misc utility functions
-function replaceRefKeys (object) {
-    if(typeof object !== 'object'){
+function replaceRefKeys (object, rootSchema) {
+    if(typeof rootSchema === 'undefined'){  //if root schema wasn't specified, assume we're at the top level
+        rootSchema = object;
+    }
+
+    if((typeof object !== 'object') || (object === null)){
         return object;
     } else if (object instanceof Array) {
         return object.map((item) => {
-            return replaceRefKeys(item);
+            return replaceRefKeys(item, rootSchema);
         });
     }
+
     return Object.keys(object).reduce((acc, key) => {
         if(key === '$ref') {
+            if(object[key].includes('#')){
+                return getJsonPointerObjectValue(rootSchema, object[key]);
+            }
             acc[key] = `#/components/schemas/${object[key]}`;
+
         } else {
-            acc[key] = replaceRefKeys(object[key]);
+            acc[key] = replaceRefKeys(object[key], rootSchema);
         }
         return acc;
     }, {});
@@ -44,9 +53,10 @@ function replaceRefKeys (object) {
 
 function removeNonCompliantSchemaParts(object){
     // Turns out OpenApi Schemas is based on JSON Schema v00 ;_;
-    const fieldsToRemove = ['$id', 'id', 'dataLevel'];
+    // and it's so strict I can't have custom properties and such
+    const fieldsToRemove = ['$id', 'id', 'dataLevel', 'permissionTypes'];
     // And swagger v2 doesn't like some of the cool JSON Schema stuff i've been doing.
-    if(typeof object !== 'object'){
+    if(typeof object !== 'object' || (object === null)){
         return object;
     } else if (object instanceof Array) {
         return object.map((item) => {
@@ -65,4 +75,19 @@ function removeNonCompliantSchemaParts(object){
         }
         return acc;
     }, {});
+}
+
+function getJsonPointerObjectValue(object, jsonPointer){
+    const matches = jsonPointer.match(/#?(.+)/);
+    return matches[1].split('/').reduce((acc, key) => {
+        if(key === ''){ //because there might be an initial blank piece
+            return acc;
+        }
+        if(!acc){   //if it's not defined, return it back up
+            return acc;
+        }
+        return acc[key];
+
+    }, object);
+
 }

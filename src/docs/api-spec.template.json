@@ -228,6 +228,31 @@
                     }
 				}
 			}
+		},
+		"/api-keys": {
+			"post": {
+				"summary": "create a new API token",
+				"description": "create a new API token with given permissions",
+				"requestBody": {
+					"description": "description of api token",
+                    "content":{
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/postApiKey_schema.json"
+                            }
+                        }
+                    },
+                    "required": true
+				},
+				"responses": {
+					"200": {
+						"description": "task status updated successfully"
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+				}
+			}
 		}
 	},
     "components": {

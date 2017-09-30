@@ -231,6 +231,31 @@
                     }
                 }
             }
+        },
+        "/api-keys": {
+            "post": {
+                "summary": "create a new API token",
+                "description": "create a new API token with given permissions",
+                "requestBody": {
+                    "description": "description of api token",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/postApiKey_schema.json"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "task status updated successfully"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/forbidden"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -243,7 +268,7 @@
         },
         "responses": {
             "forbidden": {
-                "description": "Authorisation failed."
+                "description": "OPTION forbidden."
             }
         },
         "schemas": {
@@ -307,6 +332,74 @@
                 "required": [
                     "episodeNumber"
                 ]
+            },
+            "permissions_schema.json": {
+                "type": "object",
+                "description": "A set of permissions for this API",
+                "properties": {
+                    "dataViewLevel": {
+                        "enum": [
+                            "public",
+                            "staff",
+                            "admin",
+                            "debug"
+                        ]
+                    },
+                    "taskUpdate": {
+                        "enum": [
+                            "own",
+                            "all",
+                            null
+                        ]
+                    },
+                    "projectDetailUpdate": {
+                        "enum": [
+                            "own",
+                            "all",
+                            null
+                        ]
+                    },
+                    "projectCreation": {
+                        "enum": [
+                            "own",
+                            "all",
+                            null
+                        ]
+                    },
+                    "apiTokenCreate": {
+                        "type": "boolean"
+                    },
+                    "apiTokenRevoke": {
+                        "type": "boolean"
+                    }
+                },
+                "additionalProperties": false
+            },
+            "postApiKey_schema.json": {
+                "type": "object",
+                "description": "A set of permissions for this API",
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "description": "A description of this API key and why it was issued"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "email address of person assigned to this key."
+                    },
+                    "staffName": {
+                        "type": "string",
+                        "description": "Staff member assigned to this key."
+                    },
+                    "permissions": {
+                        "$ref": "#/components/schemas/permissions_schema.json"
+                    }
+                },
+                "required": [
+                    "email",
+                    "permissions"
+                ],
+                "additionalProperties": false
             },
             "projectTemplate_schema.json": {
                 "type": "object",

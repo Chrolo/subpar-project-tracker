@@ -26,9 +26,10 @@ function ProjectsRouterFactory(mysqlConnectionPool){
     ProjectsRouter.get('/', (req, res) => {
         //Return a list of projects on the database:
         getConnection().then((connection) => {
-            return getListOfProjects(connection).then((result) => {
+            return getListOfProjects(connection).then((results) => {
                 connection.release();
-                return res.send(result);
+                Logger.info('ProjectsRouter GET projects', `Sending ${results.length} results.`);
+                return res.send(results);
             }).catch((err) => {
                 connection.release();
                 return Promise.reject(err);
@@ -45,6 +46,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
         getConnection().then((connection) => {
             return getFullProjectInfoByName(connection, req.params.projectName).then((result) => {
                 if(result === null){
+                    connection.release();
                     return res.status(404).send();
                 }
                 Logger.silly('GET projects/:projectName', `Got raw project data as:`, JSON.stringify(result));
@@ -52,6 +54,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                 //filter the result by project_schema.json
                 result = filter(result, 'project_schema.json', req.apiPermission.permissions.dataViewLevel);
                 //then send it
+                connection.release();
                 return res.send(result);
 
             }).catch((err) => {
@@ -76,6 +79,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                         return res.status(404).send(`Couldn't find info for episode ${req.params.episodeNumber} for project ${req.params.projectName}`);
                     }
                     result = filter(result, 'episode_schema.json', req.apiPermission.permissions.dataViewLevel);
+                    connection.release();
                     return res.send(result);
                 }).catch((err) => {
                     connection.release();
@@ -137,8 +141,8 @@ function ProjectsRouterFactory(mysqlConnectionPool){
                     return res.status(400).send(`Couldn't find match for task ${req.params.taskName} from ep${req.params.episodeNumber} of ${req.params.projectName}.`);
 
                 }).catch((err) => {
-                    connection.release();
                     Logger.error('ProjectRouter::PATCH task', 'An unhandled error occurred', err);
+                    connection.release();
                     return res.status(500).send();
                 });
         })
@@ -163,6 +167,7 @@ function ProjectsRouterFactory(mysqlConnectionPool){
 
         return getConnection().then((connection) => {
             return createProjectFromTemplate(connection, req.body).then(() => {
+                connection.release();
                 return res.status(201).send(`Created Project ${req.body.name}`);
             }).catch((err) => {
                 connection.release();

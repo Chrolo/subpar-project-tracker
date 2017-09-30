@@ -11,7 +11,7 @@ const defaultSettings = {
         connectionLimit: 10
     },
     logger: {
-        level: 'warn'
+        level: 'info'
     },
     server: {
         port: 8080,
