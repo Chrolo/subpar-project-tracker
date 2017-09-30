@@ -7,6 +7,10 @@ A service to keep track of your groups projects and where they're at.
 It takes the form of a single service API, which you can use to retrieve the status of a project or update projects.
 There is a separate CLI program included to an admin to add new project and API tokens
 
+## The API
+
+The API that this spins up is documented in `/docs/api.swagger.json`. It's an OpenAPI v3 spec. You can use [the online API editor/viewer](https://editor.swagger.io/) to help read it if you'd like.
+
 ## Dependant Infrastructure:
 
 This project requires a MySQL database to be configured, the specification for which is in `docs/database.json`. It's designed to be used with [Mysql-DB-Builder](https://github.com/Chrolo/Mysql-DB-Builder).
@@ -40,14 +44,16 @@ __Example config__
 ### `server`
 | key |default value | description |
 | - | - | - |
-| port |`8080` | the port for the server to run on |
+| port | `8080` | the port for the server to run on |
+| hostname | `undefined` | hostname to listen on. If left undefined, listens on the `undefined IP` (all IPs the machine responds to) as noted in [the node documentation](https://nodejs.org/api/http.html#http_server_listen_port_hostname_backlog_callback) |
 
 
 __Example config__
 ```json
 {
     "server":{
-        "port": 8080
+        "port": 8080,
+        "hostname": "example.com"
     }
 }
 ```

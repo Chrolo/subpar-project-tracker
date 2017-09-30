@@ -14,7 +14,8 @@ const defaultSettings = {
         level: 'warn'
     },
     server: {
-        port: 8080
+        port: 8080,
+        hostname: void 0    //undefined
     }
 };
 

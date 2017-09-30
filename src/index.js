@@ -46,8 +46,8 @@ new Promise((res, rej) => {
     Logger.info('ServerStartup', 'Routers applied');
 
     Logger.info('ServerStartup', 'Starting server');
-    app.listen(config.server.port, () => {
-        Logger.info('ServerStartup', `API started on port :${config.server.port}`);
+    app.listen(config.server.port, config.server.hostname, () => {
+        Logger.info('ServerStartup', `API started listening on ${config.server.hostname ? config.server.hostname:''}:${config.server.port}`);
     });
 }).catch((err) => {
     Logger.error('ServerStartup', 'An Unhandled exception occured:\n', err);
