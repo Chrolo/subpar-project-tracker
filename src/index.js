@@ -5,14 +5,12 @@ const Logger = require('./util/Logger.js');
 const mysqlConnectionPool = require('./util/mysqlConnectionPool.js');
 
 /* config */
-const config = require('./configFileLoader.js')(argv.config);
+const config = require('./configFileLoader.js').loadSettingsFromFile(argv.config);
 //Setup the Logger:
 Logger.setLogLevel(config.logger.level);
 Logger.debug('config', 'Starting with configuration of', config);
 
 // App Startup:
-
-console.log(mysqlConnectionPool);
 //get database Connection pool ready:
 mysqlConnectionPool.initialiseConnectionPoolFromConfig(config.mysql)
     .catch((err) => {

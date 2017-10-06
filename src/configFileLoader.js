@@ -21,12 +21,12 @@ const defaultSettings = {
 
 const DEFAULT_CONFIG_PATH = path.resolve(__dirname, '../config.json');
 
-function getConfig(configFile = DEFAULT_CONFIG_PATH){
+let instanceSettings= defaultSettings;
+
+function loadSettingsFromFile(configFile = DEFAULT_CONFIG_PATH){
     if(!configFile || typeof configFile !== 'string'){
         throw new TypeError(`Config file path must be string, was ${configFile} ${typeof configFile}.`);
     }
-
-    const settings = JSON.parse(JSON.stringify(defaultSettings)); //a cheap deep copy
 
     //If non-default specified, resolve relative to process:
     if(configFile !== DEFAULT_CONFIG_PATH){
@@ -47,9 +47,16 @@ function getConfig(configFile = DEFAULT_CONFIG_PATH){
         Logger.warn(`ConfigFileLoader`, `No config file found. Assuming defaults.`);
     }
 
-    const finalConfig = deepMergeObject(settings, loadedFile);
-    return finalConfig;
+    //Set the new settings:
+    instanceSettings = deepMergeObject(defaultSettings, loadedFile);
+    return getConfig(); //for convienence, we return the settings to the user.
 }
+
+function getConfig(){
+    //a copy of the settings, so they don't fuck shit up
+    return JSON.parse(JSON.stringify(instanceSettings));
+}
+
 // Note, properties in object2 overwrite those in object2
 function deepMergeObject(object1, object2){
     //deep clone object1
@@ -73,4 +80,7 @@ function deepMergeObject(object1, object2){
 
 }
 
-module.exports = getConfig;
+module.exports = {
+    loadSettingsFromFile,
+    getConfig
+};
