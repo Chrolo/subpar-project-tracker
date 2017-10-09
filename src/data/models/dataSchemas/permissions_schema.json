@@ -13,7 +13,7 @@
             "$ref": "#/permissionTypes/ownerships"
         },
         "projectCreation": {
-            "$ref": "#/permissionTypes/ownerships"
+            "type": "boolean"
         },
         "apiTokenCreate": {
             "type": "boolean"
@@ -28,7 +28,7 @@
             "enum": ["public", "staff", "admin", "debug"]
         },
         "ownerships":{
-            "enum": ["own", "all", null]
+            "enum": ["own", "all", "none"]
         }
     }
 }

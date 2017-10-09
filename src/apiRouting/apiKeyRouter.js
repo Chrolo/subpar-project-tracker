@@ -25,6 +25,9 @@ ApiKeyRouter.post('/', (req, res) => {
     return mysqlConnectionPool.getConnection().then((connection) => {
         return createNewApiKey(connection, req.body).then((newApiKey) => {
             return res.status(201).send(`Created new API key ${newApiKey}`);
+        }).catch((err) => {
+            connection.release();
+            throw err;
         });
     }).catch((err) => {
         Logger.error(`ApiKeyRouter`, `Error Adding new API key`, err);

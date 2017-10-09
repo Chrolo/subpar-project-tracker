@@ -11,6 +11,12 @@ const apiKeyCache = {
 
 const CACHE_EXPIRY_LENGTH_MS = 60*1000; //1 minute
 
+function getListOfApiKeys(connection){
+    return promiseQuery(connection, 'SELECT apiKey FROM api_keys;').then(results => {
+        return results.map(row => row.apiKey);
+    });
+}
+
 function getPermissionsForApiKey(connection, apiKey){
     if(!apiKey || apiKey.length !== 36){
         Logger.debug('getPermissionsForApiKey', `Saw invalid uuid: '${apiKey}'`);
@@ -81,5 +87,6 @@ function getApiKeyDataFromCache(apiKey){
 
 module.exports= {
     createNewApiKey,
+    getListOfApiKeys,
     getPermissionsForApiKey
 };

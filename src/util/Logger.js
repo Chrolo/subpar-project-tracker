@@ -30,12 +30,15 @@ const config = {
     timestamp: true
 };
 
-function setLogLevel(level){
+function setLogLevel(level, hideChangeMessage){
     if(!LOG_LEVELS.includes(level)){
         throw new TypeError(`Logger level '${level}' is not recognised. Try one of ${JSON.stringify(LOG_LEVELS)}`);
     }
     config.logLevel = level;
-    console.log(formatLogMessage('Logger', `Logger level set to ${level}.`));   //eslint-disable-line no-console
+    prevLevel= level;
+    if(!hideChangeMessage){
+        console.log(formatLogMessage('Logger', `Logger level set to ${level}.`));   //eslint-disable-line no-console
+    }
 }
 function getLogLevel(){
     return config.logLevel;

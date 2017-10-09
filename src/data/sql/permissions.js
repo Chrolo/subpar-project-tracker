@@ -97,6 +97,7 @@ module.exports = {
     convertSqlToEnum,
     convertEnumToSql,
     ENUMS,
+    FIELD_DATA,
     getPermissionsForId,
     insertNewPermissionsRule
 };
