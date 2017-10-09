@@ -1,5 +1,6 @@
+require('../../util/myJs'); //I need Object.map();
 const {createInsertionObject, promiseQuery} = require('./utils.js');
-const Logger = require('../../util/Logger.js');
+const Logger = require('../../util/Logger');
 
 //---------------------------------------------
 //functions
@@ -22,35 +23,35 @@ function insertNewPermissionsRule(connection, permissions){
     if(!permissions){
         throw new TypeError(`permissions must be specifed. Got '${permissions}'`);
     }
-    const insertionObject = createInsertionObject('permissions', [permissions]);
+    //convert permissions to sql storage types:
+    const sqlPermissions = convertEnumPermissionsToSql(permissions);
+    const insertionObject = createInsertionObject('permissions', [sqlPermissions]);
     return promiseQuery(connection, insertionObject.sql, insertionObject.data);
 }
 
 function convertSQLPermissionsToEnums(sqlResultObject){
-    return Object.keys(sqlResultObject).reduce((acc, key) => {
-        acc[key] = convertDataType(sqlResultObject[key], key);
-        return acc;
-    }, {});
+    return Object.map(sqlResultObject, (val, key) => {
+        return convertSqlToEnum(key, val);
+    });
+}
+
+function convertEnumPermissionsToSql(permissions){
+    return Object.map(permissions, (val, key) => {
+        return convertEnumToSql(key, val);
+    });
 }
 
 //---------------------------------------------
 // Data Constants
 
-const DATA_LEVELS = {
-    PUBLIC: {js: 'public', sql: 0},
-    STAFF: {js: 'staff', sql: 1},
-    ADMIN: {js: 'admin', sql: 2},
-    DEBUG: {js: 'debug', sql: 3}
-};
-const OWNERSHIPS = {
-    NONE: {js: null, sql: 0},
-    OWN: {js: 'own', sql: 1},
-    ALL: {js: 'all', sql: 2}
-};
-const BOOLEAN = {
-    FALSE: {js: false, sql: 0},
-    TRUE: {js: true, sql: 1}
-};
+const DATA_LEVELS = [
+    'public',
+    'staff',
+    'admin',
+    'debug'
+];
+const OWNERSHIPS = ['none', 'own', 'all'];
+const BOOLEAN = [false, true];
 
 const FIELD_DATA = {
     dataViewLevel: DATA_LEVELS,
@@ -61,43 +62,41 @@ const FIELD_DATA = {
     apiTokenRevoke: BOOLEAN
 };
 
-function filterToJsValues(dataObject){
-    return dataObject.js;
-}
-function filterToSqlValues(dataObject){ //eslint-disable-line no-unused-vars
-    return dataObject.sql;
-}
-function convertDataType(value, fieldName, from= 'sql', to = 'js'){
+function convertSqlToEnum(fieldName, value){
     if(FIELD_DATA[fieldName]){
-        const fieldType = FIELD_DATA[fieldName];
-        const enumData = Object.keys(fieldType).find(possibleEnumKey => fieldType[possibleEnumKey][from]===value);
-        const definition = fieldType[enumData];
-        if(definition){
-            return definition[to];
-        }
-        return void 0; //given data for mapping undefined
-
+        return FIELD_DATA[fieldName][value];
     }
-    Logger.error('permissions', `Field name '${fieldName}' Not declared.`);
+    Logger.warn('permissions', `Permissions field name '${fieldName}' not known. Use one of ${Object.keys(FIELD_DATA)}`);
     return void 0;
-
 }
 
-//for the system output, we'll filter it to just be the JS values of above
-const ENUMS = Object.keys(FIELD_DATA).reduce((acc, field) => {
-    const dataType = FIELD_DATA[field];
-    const reducedDataType = Object.keys(dataType).reduce((acc2, key) => {
-        acc2[key] = filterToJsValues(dataType[key]);
-        return acc2;
+function convertEnumToSql(fieldName, enumVal){
+    if(!FIELD_DATA[fieldName]){
+        Logger.warn('permissions', `Permissions field name '${fieldName}' not known. Use one of ${Object.keys(FIELD_DATA)}`);
+        return void 0;
+    }
+
+    const index = FIELD_DATA[fieldName].indexOf(enumVal);
+    if(index === -1){
+        throw new TypeError(`Permissions field name '${fieldName}' does not have permission level ${enumVal}. Use one of ${FIELD_DATA[fieldName]}`);
+    }
+    return index;
+}
+//for the system output, we'll filter it to just be the JS values of above, but with CAPITAL KEYS
+const ENUMS = Object.map(FIELD_DATA, (val) => {
+    //from the array of values, create
+    return val.reduce((acc, enumVal) => {
+        const enumString = `${enumVal}`.toUpperCase(); //Force it to a string
+        acc[enumString] = enumVal;
+        return acc;
     }, {});
-    acc[field] = reducedDataType;
-    return acc;
-}, {});
+});
 //---------------------------------------------
 
 module.exports = {
+    convertSqlToEnum,
+    convertEnumToSql,
     ENUMS,
-    convertDataType,
     getPermissionsForId,
     insertNewPermissionsRule
 };

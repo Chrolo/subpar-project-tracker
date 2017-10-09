@@ -14,6 +14,7 @@ Level: [alias]
 Note: use array indexs for text -> int transformation
 */
 const LOG_LEVELS = [
+    'silent',
     'error',
     'warn',
     'info',
@@ -35,6 +36,20 @@ function setLogLevel(level){
     }
     config.logLevel = level;
     console.log(formatLogMessage('Logger', `Logger level set to ${level}.`));   //eslint-disable-line no-console
+}
+function getLogLevel(){
+    return config.logLevel;
+}
+
+let prevLevel=null;
+function toggleLogMute(){
+    if(prevLevel===null){
+        prevLevel = config.logLevel;
+        config.logLevel = 'silent';
+    } else {
+        config.logLevel = prevLevel;
+        prevLevel = null;
+    }
 }
 
 function formatLogMessage(tag, message, dataPresent){
@@ -109,7 +124,9 @@ function silly(tag, message, ...data){
 }
 
 module.exports = {
+    getLogLevel,
     setLogLevel,
+    toggleLogMute,
     log,
     error, warn, verbose, info, debug, silly
 };
