@@ -16,6 +16,20 @@ Object.defineProperty(Object.prototype, 'forEach', {
     }
 });
 
+// I want to map my objects
+// Callback should be (value, key, object)=>{} this is analagous to Array.map
+Object.map = (object, callback) => {
+    const keys = Object.keys(object);
+    const newValues = keys.map((key) => {
+        return callback(object[key], key, object);
+    });
+
+    return keys.reduce((acc, key, index) => {
+        acc[key] = newValues[index];
+        return acc;
+    }, {});
+};
+
 //I want a version of Promise.all for objects!
 Promise.props = (object) => {
     //Get the keys

@@ -19,6 +19,9 @@ function getPermissionsForId(connection, id) {
 }
 
 function insertNewPermissionsRule(connection, permissions){
+    if(!permissions){
+        throw new TypeError(`permissions must be specifed. Got '${permissions}'`);
+    }
     const insertionObject = createInsertionObject('permissions', [permissions]);
     return promiseQuery(connection, insertionObject.sql, insertionObject.data);
 }

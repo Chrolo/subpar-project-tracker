@@ -9,7 +9,7 @@ function initialiseConnectionPoolFromConfig(config){
     return promiseQuery(connectionPool, 'SELECT 1 + 1 AS solution').catch((error) => {
         connectionPool = null;  //something went wrong, so we don't have a connection pool after all
         Logger.error('connectionPool', `Failed to verify SQL connection with parameters: ${
-            JSON.stringify({user: config.mysql.user, host: config.mysql.host, database: config.mysql.database})
+            JSON.stringify({user: config.user, host: config.host, database: config.database})
         }\nError: `, error);
         throw error;
     });

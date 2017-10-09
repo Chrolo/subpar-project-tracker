@@ -19,6 +19,34 @@ class FunctionSpy {
 }
 
 describe('[util/myjs.js] My custom prototype extenders', () => {
+
+    describe('Object.map();', () => {
+        it('Calls the callback with the value and key for each entry in the object', () => {
+            const spy = new FunctionSpy();
+            const testObject = {test: 'with', about: 3, keys: () => {}}; //eslint-disable-line no-empty-function
+            const testObjectKeys = Object.keys(testObject);
+            //call the forEach method
+            Object.map(testObject, spy.func);
+            //Check results
+            testObjectKeys.forEach((key) => {
+                //filter the times it was called down to the one for this key
+                const filteredArgs = spy.calledWith.filter(args => args[1]===key);
+                //Check the key has been called:
+                expect(filteredArgs.length, `Expected only one call for key ${key}, saw ${filteredArgs.length}`).to.equal(1);
+                //Check it was called with the correct value
+                const instanceArgs = filteredArgs[0]; //take out the (only) set of args
+                expect(instanceArgs[0], 'Expected first arguement to callback to be the value').to.equal(testObject[key]);
+            });
+        });
+
+        it('returns an object with the same keys, but with values returned from callback', () => {
+            const testObject = {test: 'with', about: 3, keys: () => {}}; //eslint-disable-line no-empty-function
+            const actual = Object.map(testObject, (v, k) => k);
+            //expect all the keys to have value === key
+            expect(actual).to.deep.equal({test: 'test', about: 'about', keys: 'keys'});
+        });
+    });
+
     describe('Object.prototype.forEach();', () => {
         it('calls the callback for each key in the object, with `(value, key)` as args', () => {
             const spy = new FunctionSpy();
