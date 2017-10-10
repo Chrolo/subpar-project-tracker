@@ -25,9 +25,13 @@
             "description": "email address of person assigned to this key."
         },
         {
-            "name":"staffName",
-            "type": "TEXT",
-            "description": "Staff member assigned to this key."
+            "name":"staffId",
+            "type": "INT",
+            "description": "Staff member assigned to this key.",
+            "foreignKey": {
+                "table": "staff",
+                "column": "id"
+            }
         },
         {
             "name": "permissionId",

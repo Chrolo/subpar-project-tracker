@@ -1,6 +1,6 @@
 {
   "name": "subpar-project-tracker",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A project tracking system for fansub groups. It has a simple API that can be used by a website or chatbot to enable people to see progress on the groups projects and for designated staff to add new projects and update them.",
   "main": "src/index.js",
   "scripts": {

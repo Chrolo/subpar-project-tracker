@@ -1,7 +1,7 @@
 {
     "name": "subpar",
-    "tables": [
-        {
+    "tables": {
+        "api_keys": {
             "name": "api_keys",
             "primaryKey": "id",
             "fields": [
@@ -28,9 +28,13 @@
                     "description": "email address of person assigned to this key."
                 },
                 {
-                    "name": "staffName",
-                    "type": "TEXT",
-                    "description": "Staff member assigned to this key."
+                    "name": "staffId",
+                    "type": "INT",
+                    "description": "Staff member assigned to this key.",
+                    "foreignKey": {
+                        "table": "staff",
+                        "column": "id"
+                    }
                 },
                 {
                     "name": "permissionId",
@@ -44,7 +48,7 @@
                 }
             ]
         },
-        {
+        "episodes": {
             "name": "episodes",
             "primaryKey": "id",
             "fields": [
@@ -76,7 +80,7 @@
                 }
             ]
         },
-        {
+        "episode_files": {
             "name": "episode_files",
             "primaryKey": "id",
             "fields": [
@@ -112,7 +116,7 @@
                 }
             ]
         },
-        {
+        "permissions": {
             "name": "permissions",
             "primaryKey": "id",
             "fields": [
@@ -154,7 +158,7 @@
                 }
             ]
         },
-        {
+        "projects": {
             "name": "projects",
             "primaryKey": "id",
             "fields": [
@@ -176,10 +180,19 @@
                 {
                     "name": "projectType",
                     "type": "TEXT"
+                },
+                {
+                    "name": "projectLeader",
+                    "type": "INT",
+                    "description": "the staff member responsible for this project",
+                    "foreignKey": {
+                        "table": "staff",
+                        "column": "id"
+                    }
                 }
             ]
         },
-        {
+        "project_aliases": {
             "name": "project_aliases",
             "primaryKey": "id",
             "fields": [
@@ -204,7 +217,41 @@
                 }
             ]
         },
-        {
+        "staff": {
+            "name": "staff",
+            "primaryKey": "id",
+            "fields": [
+                {
+                    "name": "id",
+                    "type": "INT",
+                    "autoIncrement": true,
+                    "notNull": true
+                },
+                {
+                    "name": "name",
+                    "type": "VARCHAR(50)",
+                    "unique": true
+                },
+                {
+                    "name": "ircName",
+                    "type": "VARCHAR(50)"
+                },
+                {
+                    "name": "discordTag",
+                    "type": "VARCHAR(50)",
+                    "unique": true
+                },
+                {
+                    "name": "email",
+                    "type": "TEXT"
+                },
+                {
+                    "name": "timezone",
+                    "type": "TEXT"
+                }
+            ]
+        },
+        "tasks": {
             "name": "tasks",
             "primaryKey": "id",
             "fields": [
@@ -219,8 +266,12 @@
                     "type": "TEXT"
                 },
                 {
-                    "name": "staffName",
-                    "type": "TEXT"
+                    "name": "staffId",
+                    "type": "INT",
+                    "foreignKey": {
+                        "table": "staff",
+                        "column": "id"
+                    }
                 },
                 {
                     "name": "lastUpdated",
@@ -240,7 +291,7 @@
                 }
             ]
         },
-        {
+        "task_dependencies": {
             "name": "task_dependencies",
             "description": "Each row respresents a constraint that the 'preTask' is completed before the 'task' is begun",
             "primaryKey": "id",
@@ -265,5 +316,5 @@
                 }
             ]
         }
-    ]
+    }
 }

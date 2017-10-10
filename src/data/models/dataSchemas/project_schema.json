@@ -43,6 +43,17 @@
                 "MISC"
             ],
             "dataLevel": "public"
+        },
+        "projectLeader": {
+            "allOf":[
+                {
+                    "description": "name of the staff member responsible for this project",
+                    "dataLevel": "public"
+                },
+                {
+                    "$ref": "staffMember_schema.json"
+                }
+            ]
         }
     },
     "additionalProperties": false

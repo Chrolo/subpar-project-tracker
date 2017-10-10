@@ -256,6 +256,61 @@
                     }
                 }
             }
+        },
+        "/staff": {
+            "get": {
+                "summary": "get list of staff names",
+                "responses": {
+                    "200": {
+                        "description": "List of staff names",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/forbidden"
+                    }
+                }
+            }
+        },
+        "/staff/{staffName}": {
+            "parameters": [
+                {
+                    "name": "staffName",
+                    "in": "path",
+                    "description": "The staff member's name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                }
+            ],
+            "get": {
+                "summary": "get staff details",
+                "description": "get staff details.",
+                "responses": {
+                    "200": {
+                        "description": "staff details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/staffMember_schema.json"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/forbidden"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -385,6 +440,7 @@
                     },
                     "email": {
                         "type": "string",
+                        "format": "email",
                         "description": "email address of person assigned to this key."
                     },
                     "staffName": {
@@ -418,6 +474,10 @@
                     "episodeCount": {
                         "type": "integer",
                         "description": "The number of episodes in the project. (Initially)"
+                    },
+                    "projectLeaderName": {
+                        "type": "string",
+                        "description": "The name of the project leader (Must already exist on the staff database)."
                     },
                     "projectType": {
                         "type": "string",
@@ -478,8 +538,42 @@
                             "FILM",
                             "MISC"
                         ]
+                    },
+                    "projectLeader": {
+                        "allOf": [
+                            {
+                                "description": "name of the staff member responsible for this project"
+                            },
+                            {
+                                "$ref": "#/components/schemas/staffMember_schema.json"
+                            }
+                        ]
                     }
                 },
+                "additionalProperties": false
+            },
+            "staffMember_schema.json": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "ircName": {
+                        "type": "string"
+                    },
+                    "discordTag": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "timezone": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name"
+                ],
                 "additionalProperties": false
             },
             "taskUpdatePatch_schema.json": {
@@ -506,9 +600,15 @@
                         "format": "date-time",
                         "description": "the date the task was completed."
                     },
-                    "staffName": {
-                        "type": "string",
-                        "description": "name of the staff memeber responsible for this task"
+                    "staff": {
+                        "allOf": [
+                            {
+                                "description": "name of the staff member responsible for this task"
+                            },
+                            {
+                                "$ref": "#/components/schemas/staffMember_schema.json"
+                            }
+                        ]
                     },
                     "dependsOn": {
                         "type": "array",
@@ -530,7 +630,7 @@
                 },
                 "additionalProperties": false,
                 "required": [
-                    "staffName",
+                    "staff",
                     "taskName"
                 ]
             }

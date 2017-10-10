@@ -1,0 +1,34 @@
+{
+    "name": "staff",
+    "primaryKey": "id",
+    "fields": [
+        {
+            "name":"id",
+            "type": "INT",
+            "autoIncrement": true,
+            "notNull": true
+        },
+        {
+            "name":"name",
+            "type": "VARCHAR(50)",
+            "unique": true
+        },
+        {
+            "name":"ircName",
+            "type": "VARCHAR(50)"
+        },
+        {
+            "name":"discordTag",
+            "type": "VARCHAR(50)",
+            "unique": true
+        },
+        {
+            "name":"email",
+            "type":"TEXT"
+        },
+        {
+            "name":"timezone",
+            "type":"TEXT"
+        }
+    ]
+}

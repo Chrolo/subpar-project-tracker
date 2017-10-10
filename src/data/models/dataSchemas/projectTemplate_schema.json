@@ -5,7 +5,7 @@
         "name": {"type": "string","description": "The name of the project"},
         "aliases": {"type": "array","items": {"type": "string"},"description":"other names for the show"},
         "episodeCount": { "type": "integer", "description": "The number of episodes in the project. (Initially)"},
-
+        "projectLeaderName": { "type":"string", "description": "The name of the project leader (Must already exist on the staff database)."},
         "projectType": {
             "type": "string",
             "enum": [

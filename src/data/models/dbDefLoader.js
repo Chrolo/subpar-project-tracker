@@ -11,16 +11,12 @@ function refreshSchemas() {
         //Define the database:
         databaseSchema = {
             name: 'subpar', //default database name
-            tables: filesFound.map((tableDefFile) => {
+            tables: filesFound.reduce((acc, tableDefFile) => {
                 const filePath = path.resolve(TABLES_FOLDER_PATH, tableDefFile);
-                const fileContent = fs.readFileSync(filePath, "utf8");
-                try{
-                    return JSON.parse(fileContent);
-                } catch (err) {
-                    Logger.error(`JsonFileLoader`, `File '${filePath}' could not be parsed.`, err);
-                    return void 0;
-                }
-            })
+                const tableSchema = require(filePath);
+                acc[tableSchema.name] = tableSchema;
+                return acc;
+            }, {})
         };
 
     } else {
@@ -29,7 +25,7 @@ function refreshSchemas() {
 }
 
 function getTableSchema(tableName){
-    return databaseSchema.tables.find(tableObject => tableObject.name === tableName);
+    return databaseSchema.tables[tableName];
 }
 
 //Call it to get initial schema load

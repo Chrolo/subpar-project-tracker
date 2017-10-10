@@ -2,7 +2,7 @@
 	"openapi": "3.0.0",
 	"info": {
 		"description": "The API for viewing or editting projects managed by the SubPar-project tracker",
-		"version": "0.0.1",
+		"version": "1.0.0",
 		"title": "SubPar-project tracker",
 		"contact": {
 			"name": "Chrolo @ DameDesuYo",
@@ -253,7 +253,62 @@
                     }
 				}
 			}
-		}
+		},
+        "/staff":{
+            "get": {
+                "summary": "get list of staff names",
+                "responses":{
+                    "200": {
+						"description": "List of staff names",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+        							"type": "array",
+        							"items": {
+        								"type": "string"
+        							}
+        						}
+                            }
+                        }
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+                }
+            }
+        },
+        "/staff/{staffName}":{
+            "parameters": [
+                {
+                    "name": "staffName",
+                    "in": "path",
+                    "description": "The staff member's name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "required": true
+                }
+            ],
+			"get": {
+				"summary": "get staff details",
+				"description": "get staff details.",
+				"responses": {
+					"200": {
+						"description": "staff details",
+                        "content":{
+                            "application/json":{
+                                "schema": {
+                                    "$ref": "#/components/schemas/staffMember_schema.json"
+                                }
+                            }
+                        }
+					},
+                    "403": {
+                      "$ref": "#/components/responses/forbidden"
+                    }
+				}
+			}
+        }
 	},
     "components": {
         "securitySchemes": {

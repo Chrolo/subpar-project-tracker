@@ -1,0 +1,35 @@
+{
+    "$id": "staffMember_schema.json",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "integer",
+            "description": "the staff id",
+            "dataLevel": "debug"
+        },
+        "name":{
+            "type":"string",
+            "dataLevel": "public"
+        },
+        "ircName":{
+            "type":"string",
+            "dataLevel": "public"
+        },
+        "discordTag":{
+            "type":"string",
+            "dataLevel": "public"
+        },
+        "email":{
+            "type":"string",
+            "dataLevel": "admin"
+        },
+        "timezone":{
+            "type":"string",
+            "dataLevel": "staff"
+        }
+    },
+    "required":[
+        "name"
+    ],
+    "additionalProperties": false
+}

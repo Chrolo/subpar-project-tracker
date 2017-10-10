@@ -20,6 +20,15 @@
         {
             "name": "projectType",
             "type": "TEXT"
+        },
+        {
+            "name":"projectLeader",
+            "type": "INT",
+            "description": "the staff member responsible for this project",
+            "foreignKey": {
+                "table": "staff",
+                "column": "id"
+            }
         }
     ]
 }

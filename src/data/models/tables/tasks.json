@@ -13,8 +13,12 @@
             "type": "TEXT"
         },
         {
-            "name": "staffName",
-            "type": "TEXT"
+            "name": "staffId",
+            "type": "INT",
+            "foreignKey": {
+                "table": "staff",
+                "column": "id"
+            }
         },
         {
             "name": "lastUpdated",

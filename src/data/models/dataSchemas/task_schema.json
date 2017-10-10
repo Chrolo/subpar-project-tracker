@@ -18,10 +18,16 @@
             "description": "the date the task was completed.",
             "dataLevel": "public"
         },
-        "staffName": {
-            "type": "string",
-            "description": "name of the staff memeber responsible for this task",
-            "dataLevel": "public"
+        "staff": {
+            "allOf":[
+                {
+                    "description": "name of the staff member responsible for this task",
+                    "dataLevel": "public"
+                },
+                {
+                    "$ref": "staffMember_schema.json"
+                }
+            ]
         },
         "dependsOn":{
             "type": "array",
@@ -46,7 +52,7 @@
     },
     "additionalProperties": false,
     "required": [
-        "staffName",
+        "staff",
         "taskName"
     ]
 }
