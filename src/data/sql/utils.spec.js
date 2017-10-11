@@ -89,7 +89,7 @@ describe('data/sql/utils', () => {
         });
         describe('for known database config', () => {
             it('returns the string to be used for the fields in fieldString key', () => {
-                const expected = '(id,name,completed,projectType)';
+                const expected = '(id,name,completed,projectType,projectLeaderId)';
                 //I don't like this as the db spec may change, but this test shouldn't have to
                 expect(utils.createInsertStringForData('projects', [{}]).fieldString).to.equal(expected);
             });
@@ -97,14 +97,16 @@ describe('data/sql/utils', () => {
             it('returns the values in the correct order for the prepared statement-like string', () => {
                 const testData = [{id: 1, name: 2}, {id: 5, completed: 7}];
                 const expected = [
-                    1,
-                    "2",
-                    null,
-                    null,
-                    5,
-                    null,
-                    7,
-                    null
+                    1,      //1: id
+                    "2",    //1: name
+                    null,   //1: completed
+                    null,   //1: projectType
+                    null,   //1: projectLeaderId
+                    5,      //2: id
+                    null,   //2: name
+                    7,      //2: completed
+                    null,   //2: projectType
+                    null    //2: projectLeaderId
                 ];
                 //I don't like this as the db spec may change, but this test shouldn't have to
                 const actual = utils.createInsertStringForData('projects', testData).values;
@@ -114,7 +116,7 @@ describe('data/sql/utils', () => {
 
             it('returns the expected number of placeholder values', () => {
                 const testData = [{}, {}, {}]; //we only care about row count
-                const expected = testData.length * 4; /*rows x fields in each row*/
+                const expected = testData.length * 5; /*rows x fields in each row*/
                 //I don't like this as the db spec may change, but this test shouldn't have to
                 const data = utils.createInsertStringForData('projects', testData);
                 const actual = (data.string.match(/\?/g) || []).length;
@@ -129,15 +131,17 @@ describe('data/sql/utils', () => {
         it('creates an expected sql string for given data', () => {
             const testData = [{id: 1, name: 2}, {id: 5, completed: 7}];
             const expected = {
-                sql: 'INSERT INTO projects (id,name,completed,projectType) VALUES (?,?,?,?),(?,?,?,?);',
+                sql: 'INSERT INTO projects (id,name,completed,projectType,projectLeaderId) VALUES (?,?,?,?,?),(?,?,?,?,?);',
                 data: [
                     1,
                     "2",
                     null,
                     null,
+                    null,
                     5,
                     null,
                     7,
+                    null,
                     null
                 ]
             };

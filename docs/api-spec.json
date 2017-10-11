@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "description": "The API for viewing or editting projects managed by the SubPar-project tracker",
-        "version": "0.0.1",
+        "version": "1.0.0",
         "title": "SubPar-project tracker",
         "contact": {
             "name": "Chrolo @ DameDesuYo",

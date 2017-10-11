@@ -1,6 +1,7 @@
 const {createInsertionObject, promiseQuery, stripNullFieldsFromResults} = require('./utils.js');
 const Logger = require('../../util/Logger.js');
 const {getEpisodesForProjectId} = require('./episodes');
+const {getStaffInfoById} = require('./staff');
 
 function getListOfProjects(connection){
     return promiseQuery(connection, 'SELECT name FROM projects;').then(results => results.map(row => row.name));
@@ -45,13 +46,19 @@ function hydrateProjectData(connection, projectData){
         return projectData;
     }
 
+    const projectLeadId = projectData.projectLeaderId;
+
     return Promise.all([
         getEpisodesForProjectId(connection, projectData.id),
-        getAliasesForProject(connection, projectData.id)
+        getAliasesForProject(connection, projectData.id),
+        projectLeadId !== void 0 ? getStaffInfoById(connection, projectLeadId) : void 0
     ]).then((res) => {
         //assign the values in:
         projectData.episodes = res[0];
         projectData.aliases = res[1];
+        if(res[2]){
+            projectData.projectLeader = res[2];
+        }
         //and resolve:
         return projectData;
     })

@@ -1,13 +1,7 @@
 /*globals describe it*/
 const {expect} = require('chai');
 const validators = require('./validators.js');
-
-function objectCloneAndExpand(...args){
-    return args.reduce((acc, object) => {
-        const clone = JSON.parse(JSON.stringify(object), null);
-        return Object.assign(acc, clone);
-    }, {});
-}
+const testData = require('../../testUtils/testDataGenerators');
 
 describe('data/models/validators', () => {
 
@@ -19,6 +13,7 @@ describe('data/models/validators', () => {
             'postApiKey_schema.json',
             'project_schema.json',
             'projectTemplate_schema.json',
+            'staffMember_schema.json',
             'task_schema.json',
             'taskUpdatePatch_schema.json'
         ];
@@ -30,28 +25,21 @@ describe('data/models/validators', () => {
     });
 
     describe('task validation', () => {
-        const minValidData = {
-            "taskName": "TS",
-            "staffName": "Chrolo"
-        };
-        const maxData = objectCloneAndExpand(minValidData, {
-            "id": 5,
-            "lastUpdated": "2017-09-11T12:45:32.000Z",
-            "completed": null,
-            "episodeId": 1,
-            "dependsOn": [7, 6]
-        });
+        const minData = testData.task.min();
+        const maxData = testData.task.max();
 
-        it('passes a correct task', () => {
-            expect(validators['task_schema.json'](minValidData), `Expected minimum data to pass validation, but got errors: \n${JSON.stringify(validators['task_schema.json'].errors, null, '  ')}\n`).to.be.true; //eslint-disable-line no-unused-expressions
+        it('passes a correct minimum task', () => {
             expect(validators['task_schema.json'](maxData), `Expected maximum data to pass validation, but got errors: \n${JSON.stringify(validators['task_schema.json'].errors, null, '  ')}\n`).to.be.true;   //eslint-disable-line no-unused-expressions
+        });
+        it('passes a correct maximum task', () => {
+            expect(validators['task_schema.json'](minData), `Expected minimum data to pass validation, but got errors: \n${JSON.stringify(validators['task_schema.json'].errors, null, '  ')}\n`).to.be.true; //eslint-disable-line no-unused-expressions
         });
 
         it('fails an incorrect task', () => {
             const invalidDataSet= [
                 {
                     "taskName": "TS",
-                    "staffName": 105 // field is wrong type
+                    "staff": 105 // field is wrong type
                 },
                 {
                     "staffName": "Chrolo" //missing required field
@@ -64,23 +52,13 @@ describe('data/models/validators', () => {
     });
 
     describe('episode validation', () => {
-        const minValidData = {
-            "episodeNumber": 2
-        };
-        const maxData = objectCloneAndExpand(minValidData, {
-            "id": 2,
-            "tasks": [
-                {
-                    "taskName": "TS",
-                    "staffName": "Chrolo"
-                }
-            ],
-            "completed": null,
-            "files": []
-        });
+        const minValidData = testData.episode.min();
+        const maxData = testData.episode.max();
 
-        it('passes a correct episode', () => {
+        it('passes a correct minimum episode', () => {
             expect(validators['episode_schema.json'](minValidData), `Expected minimum data to pass validation, but got errors: \n${JSON.stringify(validators['episode_schema.json'].errors, null, '  ')}\n`).to.be.true;    //eslint-disable-line no-unused-expressions
+        });
+        it('passes a correct maximum episode', () => {
             expect(validators['episode_schema.json'](maxData), `Expected maximum data to pass validation, but got errors: \n${JSON.stringify(validators['episode_schema.json'].errors, null, '  ')}\n`).to.be.true;         //eslint-disable-line no-unused-expressions
         });
 
@@ -98,4 +76,8 @@ describe('data/models/validators', () => {
             });
         });
     });
+
+    //TODO: Add tests for episodeFiles
+    //TODO: Add tests for staff    
+    //TODO: Add tests for projects
 });

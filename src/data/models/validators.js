@@ -7,7 +7,8 @@ const ajv = new Ajv({
     allErrors: true,
     verbose: true,
     jsonPointers: true,
-    extendRefs: 'fail'
+    extendRefs: 'fail',
+    removeAdditional: true  //strip out anything that's not meant to be there
 });
 
 //Add all the schemas to a main constructor

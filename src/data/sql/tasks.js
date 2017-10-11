@@ -1,5 +1,6 @@
 const Logger = require('../../util/Logger.js');
 const {createInsertionObject, promiseQuery} = require('./utils.js');
+const {getStaffInfoById} = require('./staff');
 
 function getTasksByEpisodeId(connection, episodeId){
     return promiseQuery(connection, 'SELECT * FROM tasks WHERE episodeId = ? ;', episodeId)
@@ -17,8 +18,12 @@ function getTasksByStaffName(connection, staffName){
 }
 
 function hydrateTaskData(connection, task){
-    return Promise.all([getTaskPreRequisiteTasks(connection, task.id)]).then((extraInfo) => {
+    return Promise.all([
+        getTaskPreRequisiteTasks(connection, task.id),
+        getStaffInfoById(connection, task.staffId)
+    ]).then((extraInfo) => {
         task.dependsOn = extraInfo[0];
+        task.staff=extraInfo[1];
         return task;
     });
 }

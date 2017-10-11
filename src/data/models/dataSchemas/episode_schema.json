@@ -33,6 +33,10 @@
                 "$ref": "episodeFile_schema.json"
             },
             "dataLevel": "public"
+        },
+        "projectId": {
+            "type":"integer",
+            "dataLevel": "debug"
         }
     },
     "additionalProperties": false,

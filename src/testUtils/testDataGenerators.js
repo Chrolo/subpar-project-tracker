@@ -65,11 +65,29 @@ function getRandomString(wordCount=1, type='all'){
 
 //Data sets:
 
+const staff = {
+    min: () => {
+        return {
+            "name": getRandomString(1, 'noun')
+        };
+    },
+
+    max: () => {
+        return Object.assign(staff.min(), {
+            "id": getRandomPositiveInt(),
+            "ircName": getRandomString(1, 'noun'),
+            "discordTag": `${getRandomString(1, 'noun')}#1337`,
+            "email": `${getRandomString(1, 'noun')}@${getRandomString(1)}.com`,
+            "timezone": getRandomString(1)
+        });
+    }
+};
+
 const task = {
     min: () => {
         return {
             "taskName": getRandomString(1, 'action'),
-            "staffName": getRandomString(1, 'noun')
+            "staff": staff.min()
         };
     },
 
@@ -93,11 +111,11 @@ const episode = {
 
     max: () => {
         const episodeNumber = getRandomPositiveInt(65);
-        return Object.assign(task.min(), {
+        return Object.assign(episode.min(), {
             "id": getRandomPositiveInt(),
             "projectId": getRandomPositiveInt(),
             "episodeName": `${getRandomString(4)} (ep${episodeNumber})`,
-            episodeNumber,
+            "episodeNumber": episodeNumber,
             "completed": getRandomDateStringOrNull(),
             "tasks": getRandomArrayOf(task.min),
             "files": [/*TODO Implement episodeFile Generator*/]
@@ -106,5 +124,5 @@ const episode = {
 };
 
 module.exports= {
-    task, episode
+    episode, staff, task
 };

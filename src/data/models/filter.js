@@ -8,55 +8,15 @@ const ASSUMED_LEVEL = 'debug';
 
 const Ajv = require('ajv');
 
-function filterSchemaByDataLevel(initialSchema, datalevel){
-    //Takes from global `schema` def to fill in $refs
-    if(typeof initialSchema !== 'object'){
-        return initialSchema;
+function shouldBeIncluded(permissionLevelGiven, dataLevelRequired){
+    if(!dataLevelRequired) {
+        dataLevelRequired=ASSUMED_LEVEL;
     }
-
-    //Arrays must be treated differently
-    if(initialSchema instanceof Array){
-        return initialSchema.map((arr) => {
-            return filterSchemaByDataLevel(arr, datalevel);
-        });
-    }
-
-    //It's an object!
-    if(initialSchema.properties){
-        //I'm using the 'properties' key to find object definitions, where I can strip out fields if needed.
-        const propertyKeys = Object.keys(initialSchema.properties);
-        //now i'm going to generate a new set of properties, stripping out the ones to be filtered out.
-        initialSchema.properties = propertyKeys.reduce((acc, propertyKey) => {
-            let fieldDef = initialSchema.properties[propertyKey];
-            const fieldDataLevel = Object.keys(fieldDef).includes('dataLevel') ? fieldDef.dataLevel : ASSUMED_LEVEL;
-            if(shouldBeIncluded(fieldDataLevel, datalevel)){
-                if(fieldDef.type === 'object' || fieldDef.properties){
-                    //it should be included, but if it's an object, should all it's children?
-                    fieldDef = filterSchemaByDataLevel(fieldDef, datalevel);
-                }
-                acc[propertyKey] = fieldDef;
-            }
-            return acc;
-        }, {});
-
-        return initialSchema;
-    }
-    // for non-object definitions, loop through each key:
-    return Object.keys(initialSchema).reduce((acc, key) => {
-        acc[key] = filterSchemaByDataLevel(initialSchema[key], datalevel);
-        return acc;
-    });
-
-}
-
-function shouldBeIncluded(dataLevel, permissionLevel){
-    if(!dataLevel) {
-        dataLevel=ASSUMED_LEVEL;
-    }
-    return FILTER_LEVELS.indexOf(dataLevel) <= FILTER_LEVELS.indexOf(permissionLevel);
+    return FILTER_LEVELS.indexOf(dataLevelRequired) <= FILTER_LEVELS.indexOf(permissionLevelGiven);
 }
 
 function filterObjectBySchemaIdAndAccess(object, schemaId, accessLevel){
+    Logger.debug('Filter', `About to filter using schema ${schemaId} at dataLevel ${accessLevel}`);
     if(!FILTER_LEVELS.includes(accessLevel)){
         throw new Error(`Access level "${accessLevel}" is unknown to the system. Try one of ${JSON.stringify(FILTER_LEVELS)}`);
     }
@@ -72,19 +32,30 @@ function filterObjectBySchemaIdAndAccess(object, schemaId, accessLevel){
         allErrors: false, //might want to set to true if debugging
         verbose: false,
         jsonPointers: true,
-        extendRefs: 'fail',
         removeAdditional: 'all'     // this option will do our filtering for us
     });
 
-    //Filter and add all the schemas
-    const schemaCopies = {};
-    Object.keys(schemas).forEach((schemaId_2) => {      //eslint-disable-line camelcase
-        //copy schema to stop it fucking up the rest of the system:
-        schemaCopies[schemaId_2] = JSON.parse(JSON.stringify(schemas[schemaId_2])); //eslint-disable-line camelcase
-        //Add the modified schema to the compiler
-        ajv.addSchema(filterSchemaByDataLevel(schemaCopies[schemaId_2], accessLevel), schemaId_2);
+    //Add the dataLevel keyword:
+    ajv.addKeyword('dataLevel', {
+        modifying: true,
+        compile: function (sch) {
+            if(shouldBeIncluded(accessLevel, sch)){
+                return () => true;
+            }
+            return (data, path, obj, propName) => {
+                delete obj[propName]; //The data removal function
+                return true;
+            };
+
+        }
     });
-    const validate = ajv.compile(filterSchemaByDataLevel(schemaCopies[schemaId], accessLevel));
+
+    //It'll need ALL the schemas:
+    Object.keys(schemas).forEach((aSchemaId) => {
+        ajv.addSchema(schemas[aSchemaId]);
+    });
+
+    const validate = ajv.compile(schemas[schemaId]);
     const result = validate(returnedObject);
 
     if(result){

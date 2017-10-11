@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "mocha -c src/**/*.spec.js",
+    "test": "mocha --require src/testUtils/testInit.js -c src/**/*.spec.js",
     "build:docs": "npm run build:databaseDef && npm run build:apiDoc",
     "build:apiDoc": "node src/docs/apiDocGenerator.js",
     "build:databaseDef": "node src/docs/dbDefCompiler.js",

@@ -182,7 +182,7 @@
                     "type": "TEXT"
                 },
                 {
-                    "name": "projectLeader",
+                    "name": "projectLeaderId",
                     "type": "INT",
                     "description": "the staff member responsible for this project",
                     "foreignKey": {

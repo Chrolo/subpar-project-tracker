@@ -27,6 +27,7 @@ mysqlConnectionPool.initialiseConnectionPoolFromConfig(config.mysql)
         const ApiKeyMiddleware = require('./apiRouting/apiKeyMiddleware.js');
         const ApiKeyRouter = require('./apiRouting/apiKeyRouter.js');
         const ProjectsRouter = require('./apiRouting/projects.js');
+        const StaffRouter = require('./apiRouting/staff.js');
         const EpisodesRouter = require('./apiRouting/episodes.js');
 
         app.use('*', RequestLogger);
@@ -34,6 +35,7 @@ mysqlConnectionPool.initialiseConnectionPoolFromConfig(config.mysql)
 
         app.use('/api-keys', ApiKeyRouter);
         app.use('/projects', ProjectsRouter);
+        app.use('/staff', StaffRouter);
         app.use('/episodes', EpisodesRouter);
         Logger.info('ServerStartup', 'Routers applied');
 
