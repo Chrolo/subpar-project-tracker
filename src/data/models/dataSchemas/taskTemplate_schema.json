@@ -1,0 +1,31 @@
+{
+    "$id":"taskTemplate_schema.json",
+    "type":"object",
+    "properties":{
+        "id": {
+            "type": "integer",
+            "description": "The id of the task"
+        },
+        "taskName": {
+            "type": "string",
+            "description": "The name of the task"
+        },
+        "staffName": {
+            "type": "string"
+        },
+        "dependsOn":{
+            "type": "array",
+            "description": "Tasks that must be completed before this task.",
+            "items":{
+                "type": "integer",
+                "description": "TaskId of task that should be complete before this one"
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "id",
+        "staffName",
+        "taskName"
+    ]
+}

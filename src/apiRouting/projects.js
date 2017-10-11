@@ -157,6 +157,12 @@ ProjectsRouter.post('/', (req, res) => {
             return res.status(201).send(`Created Project ${req.body.name}`);
         }).catch((err) => {
             connection.release();
+
+            //Check if it was a known error
+            if(err.customTag === 'STAFF404'){
+                return res.status(400).send(`${err.message}`);
+            }
+
             return Promise.reject(err);
         });
     }).catch((err) => {

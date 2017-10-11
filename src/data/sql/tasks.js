@@ -14,7 +14,14 @@ function getTasksByEpisodeId(connection, episodeId){
 }
 
 function getTasksByStaffName(connection, staffName){
-    return promiseQuery('SELECT * FROM tasks WHERE staffName = ? ;', staffName);
+    return promiseQuery('SELECT tasks.* from tasks LEFT JOIN staff ON tasks.staffId=staff.id WHERE staff.name=?;', staffName)
+        .then((result) => {
+            Logger.debug('getTasksByStaffName', `Got ${result.length} results from query for Episode ${staffName}`);
+            Logger.silly('getTasksByStaffName', `Query for ${staffName} gave results:`, result);
+            return Promise.all(result.map((task) => {
+                return hydrateTaskData(connection, task);
+            }));
+        });
 }
 
 function hydrateTaskData(connection, task){

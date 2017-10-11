@@ -76,7 +76,7 @@ const staff = {
         return Object.assign(staff.min(), {
             "id": getRandomPositiveInt(),
             "ircName": getRandomString(1, 'noun'),
-            "discordTag": `${getRandomString(1, 'noun')}#1337`,
+            "discordTag": `${getRandomString(1, 'noun')}#${getRandomPositiveInt(9999)}`,
             "email": `${getRandomString(1, 'noun')}@${getRandomString(1)}.com`,
             "timezone": getRandomString(1)
         });

@@ -19,7 +19,7 @@
         "defaultTasks":{
             "type":"array",
             "items":{
-                "$ref": "task_schema.json"
+                "$ref": "taskTemplate_schema.json"
             },
             "description": "The standard set of tasks to be applied to each episode."
         }
@@ -28,6 +28,7 @@
     "required":[
         "name",
         "episodeCount",
+        "projectLeaderName",
         "projectType",
         "defaultTasks"
     ]

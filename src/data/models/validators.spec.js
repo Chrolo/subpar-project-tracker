@@ -15,6 +15,7 @@ describe('data/models/validators', () => {
             'projectTemplate_schema.json',
             'staffMember_schema.json',
             'task_schema.json',
+            'taskTemplate_schema.json',
             'taskUpdatePatch_schema.json'
         ];
         const loadedValidators = Object.keys(validators);
@@ -78,6 +79,6 @@ describe('data/models/validators', () => {
     });
 
     //TODO: Add tests for episodeFiles
-    //TODO: Add tests for staff    
+    //TODO: Add tests for staff
     //TODO: Add tests for projects
 });
