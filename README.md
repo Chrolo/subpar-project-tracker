@@ -16,6 +16,19 @@ The API that this spins up is documented in `/docs/api.swagger.json`. It's an Op
 This project requires a MySQL database to be configured, the specification for which is in `docs/database.json`. It's designed to be used with [Mysql-DB-Builder](https://github.com/Chrolo/Mysql-DB-Builder).
 __note__: if the version in `docs/database.json` seems to be out of date, you can just run `npm run build:databaseDef` to generate a newer version.
 
+## CLI
+The CLI is there to help manage the system for someone with terminal access to the machine this system.
+__It is assumed that such a person has admin rights to this app__, because with that kind of access they could just change the code of the app to make it do what they want.
+
+### running the CLI
+The CLI can be run with `node src/cli/`. From there you should be able to use `help` to find out all you need.
+
+### What can be done?
+- Add new api tokens
+- Revoke old api tokens
+- Add new staff members.
+
+
 ## Config.json
 The program will automatically attempt to load a `config.json` from the project root, which will be used for configuration of the system on startup. You can specify an alternative config file using the `-c` flag at startup. Any file that can be parsed by NodeJs that returns a javascript object will do (you can write it as a `.js` file to be evaluated at runtime and/or obtain secrets from other areas of the system)
 

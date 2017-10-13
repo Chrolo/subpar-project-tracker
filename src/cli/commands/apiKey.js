@@ -1,5 +1,6 @@
 const permissionsValues = require('../../data/sql/permissions').FIELD_DATA;
 const {createNewApiKey, getListOfApiKeys} = require('../../data/sql/api_keys.js');
+const {getStaffNames} = require('../../data/sql/staff.js');
 const mysqlConnectionPool = require('../../util/mysqlConnectionPool.js');
 const Logger = require('../../util/Logger.js');
 
@@ -14,12 +15,30 @@ module.exports= (vorpalInstance) => {
             const self = this;  //eslint-disable-line no-invalid-this
             return self.prompt([
                 {
-                    type: 'input',
+                    type: 'list',
                     name: 'staffName',
                     message: 'Staff member this key is assigned to (if any): ',
                     filter: val => {
-                        return (val ==='') ? null:val;
+                        return (val ==='(none)') ? null:val;
+                    },
+                    //*/
+                    choices: function(){
+                        const done = this.async();
+                        mysqlConnectionPool.getConnection()
+                            .then(getStaffNames)
+                            .then( staff => staff.concat('(none)'))
+                            .catch(err => console.error(err))
+                            .then(done);
                     }
+                    /*/ // I want to use Promises, but vorpal locked itself down to Inquirer v0.11 o_o
+                    choices: function (){
+                        return new Promise(res=>res(['bob']));
+                        return mysqlConnectionPool.getConnection().then(getStaffNames)
+                            .then((staff)=>{
+                                return staff.concat('');
+                            });
+                    }
+                    //*/
                 },
                 {
                     type: 'input',
@@ -93,18 +112,38 @@ module.exports= (vorpalInstance) => {
                     }
                 };
             }).then((tokenConfig) => {
-                //Action the data:
-                return mysqlConnectionPool.getConnection()
-                    .then((connection) => {
-                        return createNewApiKey(connection, tokenConfig).then((newApiKey) => {
-                            self.log(`New Api token created: ${newApiKey}`);
-                        }).catch((err) => {
-                            connection.release();
-                            Logger.error('Cli:ApiTokenCreate', 'Failure while creating new API token', err);
-                            throw err;
+                //confirm the details:
+                self.log(tokenConfig);
+                return self.prompt([
+                    {
+                        type: 'confirm',
+                        name: 'confirmation',
+                        message: 'Are the above details correct?',
+                        default: true
+                    }
+                ]).then(data => {
+                    //check confirmation
+                    if(data.confirmation){
+                        return tokenConfig;
+                    }
+                    // if no, return null, so that next stage is skipped.
+                    return null;
+                });
+            }).then((tokenConfig) => {
+                if(tokenConfig){
+                    //Action the data:
+                    return mysqlConnectionPool.getConnection()
+                        .then((connection) => {
+                            return createNewApiKey(connection, tokenConfig).then((newApiKey) => {
+                                self.log(`New Api token created: ${newApiKey}`);
+                            }).catch((err) => {
+                                connection.release();
+                                Logger.error('Cli:ApiTokenCreate', 'Failure while creating new API token', err);
+                                throw err;
+                            });
                         });
-                    });
-
+                }
+                return null;
             });
         });
     //End of create command

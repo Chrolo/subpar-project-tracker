@@ -407,22 +407,18 @@
                         "enum": [
                             "own",
                             "all",
-                            null
+                            "none"
                         ]
                     },
                     "projectDetailUpdate": {
                         "enum": [
                             "own",
                             "all",
-                            null
+                            "none"
                         ]
                     },
                     "projectCreation": {
-                        "enum": [
-                            "own",
-                            "all",
-                            null
-                        ]
+                        "type": "boolean"
                     },
                     "apiTokenCreate": {
                         "type": "boolean"

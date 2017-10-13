@@ -11,7 +11,8 @@
         {
             "name":"name",
             "type": "VARCHAR(50)",
-            "unique": true
+            "unique": true,
+            "notNull": true
         },
         {
             "name":"ircName",
