@@ -131,5 +131,6 @@ module.exports = {
     setLogLevel,
     toggleLogMute,
     log,
-    error, warn, verbose, info, debug, silly
+    error, warn, verbose, info, debug, silly,
+    LOG_LEVELS
 };

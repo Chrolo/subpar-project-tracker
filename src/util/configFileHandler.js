@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
-const Logger = require('./util/Logger.js');
+const Logger = require('../util/Logger');
+require('./myJs'); //I'm a dirty fucker that throws shit on global;
 
 //Setup the default config
 const defaultSettings = {
@@ -15,11 +16,11 @@ const defaultSettings = {
     },
     server: {
         port: 8080,
-        hostname: void 0    //undefined
+        hostname: undefined
     }
 };
 
-const DEFAULT_CONFIG_PATH = path.resolve(__dirname, '../config.json');
+const DEFAULT_CONFIG_PATH = path.resolve(__dirname, '../../config.json');
 
 let instanceSettings= defaultSettings;
 
@@ -36,15 +37,15 @@ function loadSettingsFromFile(configFile = DEFAULT_CONFIG_PATH){
     let loadedFile = {};
     //load in the file (if it exists)
     if(fs.existsSync(configFile)){
-        Logger.info('ConfigFileLoader', `Attempting to load from '${configFile}'`);
+        Logger.info('ConfigFileHandler', `Attempting to load from '${configFile}'`);
         try{
             loadedFile = require(configFile);
         } catch (err) {
-            Logger.error(`ConfigFileLoader`, `File '${configFile}' could not be parsed.`, err);
+            Logger.error(`ConfigFileHandler`, `File '${configFile}' could not be parsed.`, err);
             process.exit(1);
         }
     } else {
-        Logger.warn(`ConfigFileLoader`, `No config file found. Assuming defaults.`);
+        Logger.warn(`ConfigFileHandler`, `No config file found. Assuming defaults.`);
     }
 
     //Set the new settings:
@@ -66,7 +67,7 @@ function deepMergeObject(object1, object2){
         if(typeof newObject[key] === 'undefined'){
             newObject[key] = JSON.parse(JSON.stringify(object2[key]));
         } else if (typeof newObject[key] !== typeof object2[key]) {
-            Logger.error(`ConfigFileLoader`, `Type mismatch in config. ${key} was seen as ${newObject[key]}(${typeof newObject[key]}) and ${object2[key]}(${typeof object2[key]})`);
+            Logger.error(`ConfigFileHandler`, `Type mismatch in config. ${key} was seen as ${newObject[key]}(${typeof newObject[key]}) and ${object2[key]}(${typeof object2[key]})`);
         } else {
             if(typeof object2[key] === 'object'){
                 newObject[key] = deepMergeObject(newObject[key], object2[key]);
@@ -77,10 +78,37 @@ function deepMergeObject(object1, object2){
     });
 
     return newObject;
+}
 
+function getDefaultConfig(){
+    return JSON.parse(JSON.stringify(defaultSettings));
+}
+
+//Strips out config that matches the default config:
+function minimiseConfig(config, comparedConfig=defaultSettings){
+    return Object.keys(config).reduce((acc, key) => {
+        const configuredSetting = config[key];
+        const defaultSetting = comparedConfig[key];
+
+        if(typeof configuredSetting === 'object' && !(configuredSetting instanceof Array)){
+            const res = minimiseConfig(configuredSetting, defaultSetting);
+            if(Object.keys(res).length !== 0){
+                acc[key] = res;
+            }
+        } else if((configuredSetting === defaultSetting) || configuredSetting === undefined){
+            //If it's not defined OR is the default anyway, get rid of it.
+            return acc;
+        } else {
+            acc[key] = configuredSetting;
+        }
+        return acc;
+    }, {});
 }
 
 module.exports = {
     loadSettingsFromFile,
-    getConfig
+    getDefaultConfig,
+    getConfig,
+    minimiseConfig,
+    DEFAULT_CONFIG_PATH
 };

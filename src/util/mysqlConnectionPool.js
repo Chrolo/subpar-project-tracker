@@ -31,7 +31,12 @@ function getConnection(){
     });
 }
 
+function hasConnection(){
+    return connectionPool !== null;
+}
+
 module.exports = {
     getConnection,
+    hasConnection,
     initialiseConnectionPoolFromConfig
 };

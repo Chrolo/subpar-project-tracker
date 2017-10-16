@@ -26,7 +26,6 @@ function getStaffNames(connection){
         .then(res => res.map(row => row.name));
 }
 
-
 function insertNewStaffMember(connection, staffInfo){
     if(!staffInfo.name){
         return Promise.reject(new TypeError('New staff data most contain a \'name\' field.'));

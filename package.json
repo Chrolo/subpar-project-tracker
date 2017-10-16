@@ -9,7 +9,7 @@
     "build:docs": "npm run build:databaseDef && npm run build:apiDoc",
     "build:apiDoc": "node src/docs/apiDocGenerator.js",
     "build:databaseDef": "node src/docs/dbDefCompiler.js",
-    "lint": "eslint ./src/**/*.js",
+    "lint": "eslint --color ./src/**/*.js",
     "lint:fix": "eslint ./src/**/*.js --fix"
   },
   "author": "Chrolo",

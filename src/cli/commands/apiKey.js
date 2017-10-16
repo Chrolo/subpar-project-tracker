@@ -13,6 +13,11 @@ module.exports= (vorpalInstance) => {
     vorpalInstance.command(`${APIKEY_COMMAND_ROOT} create`, 'Create a new api key for a user')
         .action(function(){
             const self = this;  //eslint-disable-line no-invalid-this
+            //check that we have a database connection:
+            if(!mysqlConnectionPool.hasConnection()){
+                self.log('Error: This command requires a database connection before it can be used.');
+                return Promise.resolve(false);
+            }
             return self.prompt([
                 {
                     type: 'list',
@@ -26,10 +31,11 @@ module.exports= (vorpalInstance) => {
                         const done = this.async();
                         mysqlConnectionPool.getConnection()
                             .then(getStaffNames)
-                            .then( staff => staff.concat('(none)'))
-                            .catch(err => console.error(err))
+                            .then(staff => staff.concat('(none)'))
+                            .catch(err => self.error(err))
                             .then(done);
                     }
+
                     /*/ // I want to use Promises, but vorpal locked itself down to Inquirer v0.11 o_o
                     choices: function (){
                         return new Promise(res=>res(['bob']));
@@ -154,6 +160,12 @@ module.exports= (vorpalInstance) => {
         })
         .action(function(){
             const self = this;  //eslint-disable-line no-invalid-this
+            //check that we have a database connection:
+            if(!mysqlConnectionPool.hasConnection()){
+                self.log('Error: This command requires a database connection before it can be used.');
+                return Promise.resolve(false);
+            }
+
             self.log('NOT IMPLEMENTED');
             return Promise.reject();
         });
