@@ -1,15 +1,15 @@
 # SubPar project tracker
-_v0 Desu yo_
+_v1 Desu yo_
 
 ## What is it?
 A service to keep track of your groups projects and where they're at.
 
 It takes the form of a single service API, which you can use to retrieve the status of a project or update projects.
-There is a separate CLI program included to an admin to add new project and API tokens
+There is a separate CLI program included for an admin to add new project and API tokens
 
 ## The API
 
-The API that this spins up is documented in `/docs/api.swagger.json`. It's an OpenAPI v3 spec. You can use [the online API editor/viewer](https://editor.swagger.io/) to help read it if you'd like.
+The API that this spins up is documented in `/docs/api-spec.json`. It's an OpenAPI v3 spec. You can use [the online API editor/viewer](https://editor.swagger.io/) to help read it if you'd like.
 
 ## Dependant Infrastructure:
 
@@ -18,12 +18,13 @@ __note__: if the version in `docs/database.json` seems to be out of date, you ca
 
 ## CLI
 The CLI is there to help manage the system for someone with terminal access to the machine this system.
-__It is assumed that such a person has admin rights to this app__, because with that kind of access they could just change the code of the app to make it do what they want.
+__It is assumed that such a person has full admin rights to this app__, because with that kind of access they could just change the code of the app to make it do what they want.
 
 ### running the CLI
 The CLI can be run with `node src/cli/`. From there you should be able to use `help` to find out all you need.
 
 ### What can be done?
+- Create a configuration file for your setup
 - Add new api tokens
 - Revoke old api tokens
 - Add new staff members.
@@ -74,7 +75,7 @@ __Example config__
 ### `logger`
 | key |default value | description |
 | - | - | - |
-| level | `info` | The log level. Available levels (in order from least to most verbose) are `"error", "warn",  "info", "debug", "silly"` |
+| level | `info` | The log level. Available levels (in order from least to most verbose) are `"silent", "error", "warn",  "info", "debug", "silly"` |
 
 
 __Example config__

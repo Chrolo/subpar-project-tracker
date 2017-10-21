@@ -3,8 +3,17 @@ const Logger = require('../../util/Logger.js');
 const {getEpisodesForProjectId} = require('./episodes');
 const {getStaffInfoById} = require('./staff');
 
-function getListOfProjects(connection){
-    return promiseQuery(connection, 'SELECT name FROM projects;').then(results => results.map(row => row.name));
+function getListOfProjects(connection, includeAliases=false){
+    return promiseQuery(connection, 'SELECT name FROM projects;')
+        .then(results => results.map(row => row.name))
+        .then((basicNames) => {
+            if(includeAliases){
+                return promiseQuery(connection, 'SELECT alias FROM project_aliases;')
+                    .then(results => results.map(row => row.name))
+                    .then(aliases => basicNames.concat(aliases));
+            }
+            return basicNames;
+        });
 }
 
 function getFullProjectInfoByName(connection, name){
